@@ -22,7 +22,14 @@ try {
   <section class="hero fade-in">
     <h1>{t(lang, 'heroTitle')}</h1>
     <p>{t(lang, 'heroDesc')}</p>
-    <form action="/d/[domain]" method="GET" class="search-form" role="search">
+    <form class="search-form" role="search" onsubmit={(e) => {
+      const input = (e.currentTarget.elements.namedItem('domain') as HTMLInputElement | null);
+      const domain = input?.value?.trim();
+      if (domain) {
+        e.preventDefault();
+        window.location.href = `/d/${encodeURIComponent(domain)}`;
+      }
+    }}>
       <label for="domain-input" class="sr-only">{t(lang, 'searchLabel')}</label>
       <input
         type="text"

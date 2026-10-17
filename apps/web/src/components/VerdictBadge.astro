@@ -20,9 +20,10 @@ const verdictClass = verdict === 'UP' ? 'dot-up'
   : 'dot-unknown';
 
 const label = t(lang, `verdict${verdict}` as any) ?? verdict;
+const pulseClass = verdict === 'UP' || verdict === 'BLOCKED' ? 'pulse' : '';
 ---
 
-<span class={`verdict-badge ${verdictClass}`} aria-label={label}>
+<span class={`verdict-badge ${verdictClass} ${pulseClass}`} aria-label={label}>
   <span class="verdict-dot" aria-hidden="true"></span>
   {label}
   {blockReason && (
@@ -34,14 +35,36 @@ const label = t(lang, `verdict${verdict}` as any) ?? verdict;
 
 <style>
   .verdict-badge {
-    display: inline-flex; align-items: center; gap: 0.5rem;
-    font-size: 1.25rem; font-weight: 700; padding: 0.5rem 1rem;
-    border-radius: 8px; background: var(--surface); border: 1px solid var(--border);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+    font-family: 'Sora', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    padding: 0.625rem 1.25rem;
+    border-radius: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    letter-spacing: -0.01em;
   }
-  .verdict-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
-  .dot-up .verdict-dot { background: var(--ok); }
-  .dot-blocked .verdict-dot { background: var(--bad); }
-  .dot-down .verdict-dot { background: var(--warn); }
-  .dot-unknown .verdict-dot { background: var(--muted); }
-  .verdict-reason { font-size: 0.875rem; font-weight: 400; color: var(--muted); }
+  .verdict-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+  .pulse .verdict-dot {
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+  .dot-up .verdict-dot { background: var(--ok); box-shadow: 0 0 8px var(--ok-dim); }
+  .dot-blocked .verdict-dot { background: var(--bad); box-shadow: 0 0 8px var(--bad-dim); }
+  .dot-down .verdict-dot { background: var(--warn); box-shadow: 0 0 8px var(--warn-dim); }
+  .dot-unknown .verdict-dot { background: var(--text-muted); }
+  .verdict-reason {
+    font-size: 0.875rem;
+    font-weight: 400;
+    color: var(--text-muted);
+    font-family: 'Inter', sans-serif;
+  }
 </style>

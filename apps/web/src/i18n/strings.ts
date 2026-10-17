@@ -36,7 +36,7 @@ export const strings = {
   },
   en: {
     siteTitle: 'Is It Down For Türkiye?',
-    siteSubtitle: 'Reachability check tool from Türkiye',
+    siteSubtitle: 'Türkiye reachability monitor',
     searchLabel: 'Domain',
     searchPlaceholder: 'example.com',
     searchButton: 'Check',

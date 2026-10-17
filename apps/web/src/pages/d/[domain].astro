@@ -48,14 +48,14 @@ const pageTitle = `${domain} — ${t(lang, 'heroTitle')}`;
 
 <Layout title={pageTitle} lang={lang} description={`${domain}: ${json?.verdict ?? 'checking...'}`}>
   {error ? (
-    <section class="error-state">
+    <section class="error-state fade-in">
       <h2>{t(lang, 'verdictUnknown')}</h2>
       <p>{error}</p>
     </section>
   ) : json ? (
-    <div>
+    <div class="fade-in">
       <section class="result-hero">
-        <h1 class="domain-title">{domain}</h1>
+        <p class="domain-eyebrow">{domain}</p>
         <VerdictBadge verdict={json.verdict} blockReason={json.blockReason} lang={lang} />
         <p class="meta">
           <span class="confidence-pill">{t(lang, ('confidence' + json.confidence.charAt(0).toUpperCase() + json.confidence.slice(1)) as 'confidenceHigh' | 'confidenceMedium' | 'confidenceLow' | 'confidenceNone')}</span>
@@ -66,7 +66,7 @@ const pageTitle = `${domain} — ${t(lang, 'heroTitle')}`;
       </section>
 
       {json.globalBaseline && (
-        <section class="baseline-card">
+        <section class="glass baseline-card">
           <h2>{t(lang, 'globalBaseline')}</h2>
           <dl class="baseline-dl">
             <dt>{lang === 'tr' ? 'DNS çözüldü mü?' : 'DNS resolved?'}</dt>
@@ -95,16 +95,41 @@ const pageTitle = `${domain} — ${t(lang, 'heroTitle')}`;
 
 <style>
   .result-hero { text-align: center; padding: 3rem 0 2rem; }
-  .domain-title { font-size: 2rem; margin-bottom: 1rem; word-break: break-all; }
-  .meta { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; margin-top: 1rem; color: var(--muted); font-size: 0.875rem; }
-  .confidence-pill { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 0.25rem 0.75rem; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
-  .baseline-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; }
-  .baseline-card h2 { font-size: 1.125rem; margin-bottom: 1rem; }
+  .domain-eyebrow {
+    font-size: 0.8125rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+  }
+  .meta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1.25rem;
+    color: var(--text-muted);
+    font-size: 0.8125rem;
+  }
+  .confidence-pill {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 0.25rem 0.875rem;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+  }
+  .baseline-card { padding: 1.5rem; margin: 1.5rem 0; }
+  .baseline-card h2 { font-size: 1rem; margin-bottom: 1rem; color: var(--text); }
   .baseline-dl { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem 1.5rem; }
-  .baseline-dl dt { color: var(--muted); font-size: 0.875rem; }
-  .baseline-dl dd { font-weight: 600; }
+  .baseline-dl dt { color: var(--text-muted); font-size: 0.8125rem; }
+  .baseline-dl dd { font-weight: 600; font-size: 0.9375rem; }
   .isp-section { margin: 2rem 0; }
-  .isp-section h2 { font-size: 1.25rem; margin-bottom: 0.5rem; }
-  .error-state, .loading { padding: 3rem 0; text-align: center; color: var(--muted); }
+  .isp-section h2 { font-size: 1.125rem; margin-bottom: 0.5rem; color: var(--text); }
+  .error-state, .loading { padding: 3rem 0; text-align: center; color: var(--text-muted); }
   .error-state p { color: var(--bad); margin-top: 0.5rem; }
 </style>

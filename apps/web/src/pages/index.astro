@@ -19,7 +19,7 @@ try {
 ---
 
 <Layout title={t(lang, 'heroTitle')} lang={lang}>
-  <section class="hero">
+  <section class="hero fade-in">
     <h1>{t(lang, 'heroTitle')}</h1>
     <p>{t(lang, 'heroDesc')}</p>
     <form action="/d/[domain]" method="GET" class="search-form" role="search">
@@ -41,7 +41,7 @@ try {
   </section>
 
   {watchlist.length > 0 && (
-    <section class="watchlist">
+    <section class="watchlist fade-in">
       <h2>{t(lang, 'watchlistTitle')}</h2>
       <p class="watchlist-desc">{t(lang, 'watchlistDesc')}</p>
       <div class="service-grid">

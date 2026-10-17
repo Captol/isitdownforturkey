@@ -42,27 +42,30 @@ function ispClass(verdict: string): string {
     const row = breakdown[isp] ?? { verdict: 'UNKNOWN', probeCount: 0, lastChecked: '' };
     const label = strings[lang][isp] ?? isp;
     return (
-      <div class={`isp-row ${ispClass(row.verdict)}`} role="row">
+      <div class={`isp-row glass ${ispClass(row.verdict)}`} role="row">
         <div class="isp-name" role="cell">{label}</div>
         <div class="isp-verdict" role="cell">
           <span class={`isp-dot ${ispClass(row.verdict)}`} aria-label={row.verdict}></span>
           {row.verdict}
         </div>
-        <div class="isp-probes" role="cell">{row.probeCount}</div>
+        <div class="isp-probes" role="cell">{row.probeCount || '—'}</div>
       </div>
     );
   })}
 </div>
 
 <style>
-  .isp-grid { margin-top: 1.5rem; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
-  .isp-header, .isp-row { display: grid; grid-template-columns: 1fr 1.5fr 80px; padding: 0.625rem 1rem; align-items: center; }
-  .isp-header { background: var(--surface); font-weight: 600; font-size: 0.875rem; color: var(--muted); }
-  .isp-row { border-top: 1px solid var(--border); }
-  .isp-row:hover { background: var(--surface); }
-  .isp-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 0.5rem; vertical-align: middle; }
-  .isp-up .isp-dot { background: var(--ok); }
-  .isp-blocked .isp-dot { background: var(--bad); }
-  .isp-degraded .isp-dot { background: var(--warn); }
-  .isp-unknown .isp-dot { background: var(--muted); }
+  .isp-grid { margin-top: 1.5rem; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .isp-header, .isp-row { display: grid; grid-template-columns: 1fr 1.5fr 80px; padding: 0.75rem 1rem; align-items: center; }
+  .isp-header { background: var(--surface-solid); font-weight: 600; font-size: 0.8125rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+  .isp-row { border-top: 1px solid var(--border); transition: background 0.1s; }
+  .isp-row:hover { background: rgba(255,255,255,0.02); }
+  .isp-name { font-weight: 500; font-size: 0.9375rem; }
+  .isp-verdict { display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; }
+  .isp-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .isp-up .isp-dot { background: var(--ok); box-shadow: 0 0 6px var(--ok-dim); }
+  .isp-blocked .isp-dot { background: var(--bad); box-shadow: 0 0 6px var(--bad-dim); }
+  .isp-degraded .isp-dot { background: var(--warn); box-shadow: 0 0 6px var(--warn-dim); }
+  .isp-unknown .isp-dot { background: var(--text-muted); }
+  .isp-probes { font-size: 0.8125rem; color: var(--text-muted); text-align: right; }
 </style>

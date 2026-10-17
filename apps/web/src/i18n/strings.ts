@@ -76,5 +76,5 @@ export function t(lang: Lang, key: keyof typeof strings[Lang]): string {
 /** Derive language from Accept-Language header (default: tr). */
 export function detectLang(headers: Headers): Lang {
   const accept = headers.get('accept-language') ?? '';
-  return accept.includes('tr') ? 'tr' : 'en';
+  return accept.includes('en') && !accept.includes('tr') ? 'en' : 'tr';
 }

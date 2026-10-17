@@ -1,8 +1,8 @@
 # Project Progress: Is It Down For Türkiye?
 
-**Last updated**: 2026-10-17  
+**Last updated**: 2026-10-18  
 **Current milestone**: All milestones complete ✅  
-**Git status**: Working tree has uncommitted deploy config fixes
+**Git status**: Clean — 9 commits on main (design redesign + 2 bug fixes)
 
 ---
 
@@ -94,8 +94,17 @@ Not yet set up — requires manual step (see Next Steps below).
 ## Next Steps
 
 1. ✅ 66/66 tests passing, typecheck clean, web build passes
-2. ✅ Committed to `main` (7 commits, including `.gitignore` and build artifact cleanup)
-3. **Manual steps required to deploy (when ready):**
+2. ✅ Committed to `main` (9 commits)
+3. **Design updates (2026-10-18)**:
+   - ✅ Bolder dark glassmorphism visual treatment (base.css, animated favicon, Sora+Inter fonts)
+   - ✅ VerdictBadge: larger, pulsing dot with glow shadow
+   - ✅ ISPGrid: glass rows, colored dot shadows, hover states
+   - ✅ HistoryChart: glass card, wider bars, colored legend dots
+   - ✅ BrowserCheck: outlined ghost button style
+   - ✅ Homepage hero: fade-in animations, warm orange glow gradient
+   - ✅ i18n: TR default language fixed (detectLang now defaults to tr)
+   - ✅ Search form: fixed `/d/[domain]` → proper client-side redirect
+4. **Manual steps required to deploy (when ready):**
    - ✅ `wrangler login` — done (logged in as ibo.mico1@gmail.com)
    - ✅ D1 database created and schema applied (`is-it-down-tr`)
    - ✅ wrangler.toml updated with correct DB binding
@@ -112,4 +121,4 @@ Not yet set up — requires manual step (see Next Steps below).
      ```bash
      node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
      ```
-4. No remaining uncommitted milestones. Project is feature-complete.
+5. No remaining uncommitted milestones. Project is feature-complete.

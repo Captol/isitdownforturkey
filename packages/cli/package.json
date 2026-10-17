@@ -1,0 +1,9 @@
+{
+  "name": "@isitdownforturkey/cli",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./bin/cli.js",
+  "bin": { "isitdownforturkey": "./bin/cli.js" },
+  "scripts": { "test": "echo \"No tests yet\"" },
+  "dependencies": { "got": "^14.4.6" }
+}

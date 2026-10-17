@@ -1,0 +1,23 @@
+{
+  "name": "@isitdownforturkey/api",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "hono": "^4.7.8",
+    "zod": "^3.24.2",
+    "@isitdownforturkey/shared": "*",
+    "@isitdownforturkey/probe": "*"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261006.1",
+    "@types/node": "^24.10.0",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.2",
+    "wrangler": "^4.0.0"
+  }
+}

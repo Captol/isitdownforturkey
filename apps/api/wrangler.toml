@@ -1,0 +1,15 @@
+name = "isitdownforturkey-api"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+
+[triggers.cron]
+schedule = "*/10 * * * *"
+path = "/api/cron/watchlist"
+
+[vars]
+NODE_ENV = "production"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "isitdownforturkey"
+database_id = "${CLOUDFLARE_D1_DATABASE_ID}"

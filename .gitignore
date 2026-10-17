@@ -1,0 +1,44 @@
+# Dependencies
+node_modules/
+/.pnpm-store/
+
+# Build outputs
+/dist/
+/build/
+.next/
+.out/
+
+# Environment & Secrets
+.env
+.env.local
+.env.*.local
+*.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS & Editor
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+*.iml
+
+# TypeScript
+*.tsbuildinfo
+
+# Cache
+.cache/
+.eslintcache
+
+# Testing
+coverage/
+.nyc_output/

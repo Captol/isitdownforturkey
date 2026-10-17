@@ -1,0 +1,109 @@
+---
+/**
+ * Domain detail page — SSR-fetched verdict, ISP breakdown, confidence.
+ * Route: /d/<domain>
+ * Reads: API /api/check?domain=<domain>
+ * Writes: nothing (read-only for visitor)
+ */
+import Layout from '../layouts/Layout.astro';
+import VerdictBadge from '../components/VerdictBadge.astro';
+import ISPGrid from '../components/ISPGrid.astro';
+import BrowserCheck from '../components/BrowserCheck.astro';
+import HistoryChart from '../components/HistoryChart.astro';
+import { t, detectLang } from '../i18n/strings.js';
+
+interface Props {
+  domain: string;
+}
+
+const { domain } = Astro.props;
+const lang = detectLang(Astro.request.headers);
+const apiBase = import.meta.env.PUBLIC_API_URL ?? '/api';
+
+type JsonData = {
+  verdict: string;
+  blockReason?: string;
+  confidence: string;
+  globalBaseline: { dnsResolved: boolean; httpsReachable: boolean; latencyMs: number; timestamp: string; cfDnsRecords?: string[]; googleDnsRecords?: string[] } | null;
+  ispBreakdown: Record<string, { verdict: string; probeCount: number; lastChecked: string; blockReason?: string }>;
+  lastAggregated: string;
+};
+
+let json: JsonData | null = null;
+let error: string | null = null;
+
+try {
+  const resp = await fetch(`${apiBase}/check?domain=${encodeURIComponent(domain)}`, {
+    signal: AbortSignal.timeout(8000),
+  });
+  if (!resp.ok) throw new Error(`API ${resp.status}`);
+  json = (await resp.json()) as JsonData;
+} catch (e) {
+  error = e instanceof Error ? e.message : 'Unknown error';
+}
+
+const pageTitle = `${domain} — ${t(lang, 'heroTitle')}`;
+---
+
+<Layout title={pageTitle} lang={lang} description={`${domain}: ${json?.verdict ?? 'checking...'}`}>
+  {error ? (
+    <section class="error-state">
+      <h2>{t(lang, 'verdictUnknown')}</h2>
+      <p>{error}</p>
+    </section>
+  ) : json ? (
+    <div>
+      <section class="result-hero">
+        <h1 class="domain-title">{domain}</h1>
+        <VerdictBadge verdict={json.verdict} blockReason={json.blockReason} lang={lang} />
+        <p class="meta">
+          <span class="confidence-pill">{t(lang, ('confidence' + json.confidence.charAt(0).toUpperCase() + json.confidence.slice(1)) as 'confidenceHigh' | 'confidenceMedium' | 'confidenceLow' | 'confidenceNone')}</span>
+          <span class="last-checked">
+            {t(lang, 'lastChecked')}: {new Date(json.lastAggregated).toLocaleString(lang === 'tr' ? 'tr-TR' : 'en-US')}
+          </span>
+        </p>
+      </section>
+
+      {json.globalBaseline && (
+        <section class="baseline-card">
+          <h2>{t(lang, 'globalBaseline')}</h2>
+          <dl class="baseline-dl">
+            <dt>{lang === 'tr' ? 'DNS çözüldü mü?' : 'DNS resolved?'}</dt>
+            <dd>{json.globalBaseline.dnsResolved ? '✅' : '❌'}</dd>
+            <dt>{lang === 'tr' ? 'HTTPS erişilebilir mi?' : 'HTTPS reachable?'}</dt>
+            <dd>{json.globalBaseline.httpsReachable ? '✅' : '❌'}</dd>
+            <dt>{lang === 'tr' ? 'Gecikme' : 'Latency'}</dt>
+            <dd>{json.globalBaseline.latencyMs} ms</dd>
+          </dl>
+        </section>
+      )}
+
+      <section class="isp-section">
+        <h2>{t(lang, 'ispBreakdown')}</h2>
+        <ISPGrid breakdown={json.ispBreakdown} lang={lang} />
+      </section>
+
+      <BrowserCheck domain={domain} apiBase={apiBase} lang={lang} />
+
+      <HistoryChart domain={domain} hours={24} lang={lang} />
+    </div>
+  ) : (
+    <section class="loading"><p>{lang === 'tr' ? 'Kontrol ediliyor...' : 'Checking...'}</p></section>
+  )}
+</Layout>
+
+<style>
+  .result-hero { text-align: center; padding: 3rem 0 2rem; }
+  .domain-title { font-size: 2rem; margin-bottom: 1rem; word-break: break-all; }
+  .meta { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; margin-top: 1rem; color: var(--muted); font-size: 0.875rem; }
+  .confidence-pill { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 0.25rem 0.75rem; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  .baseline-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; }
+  .baseline-card h2 { font-size: 1.125rem; margin-bottom: 1rem; }
+  .baseline-dl { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem 1.5rem; }
+  .baseline-dl dt { color: var(--muted); font-size: 0.875rem; }
+  .baseline-dl dd { font-weight: 600; }
+  .isp-section { margin: 2rem 0; }
+  .isp-section h2 { font-size: 1.25rem; margin-bottom: 0.5rem; }
+  .error-state, .loading { padding: 3rem 0; text-align: center; color: var(--muted); }
+  .error-state p { color: var(--bad); margin-top: 0.5rem; }
+</style>

@@ -1,0 +1,32 @@
+{
+  "name": "isitdownforturkey",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Is It Down For Türkiye? — A free public service reachability engine to check if services are accessible from within Türkiye.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/unknown/isitdownforturkey"
+  },
+  "scripts": {
+    "dev": "npm run dev --workspace=apps/web",
+    "build": "npm run build --workspace=apps/api && npm run build --workspace=apps/web",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,astro,json,md}\""
+  },
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "packageManager": "npm@11.19.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250514.0",
+    "@types/node": "^24.10.0",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.2"
+  }
+}

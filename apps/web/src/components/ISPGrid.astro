@@ -1,0 +1,68 @@
+---
+/**
+ * ISP breakdown grid — shows per-ISP verdict cards.
+ */
+import type { Lang } from '../i18n/strings.js';
+import { t, strings } from '../i18n/strings.js';
+import type { TurkishISP } from '@isitdownforturkey/shared';
+
+interface ISPRow {
+  verdict: string;
+  probeCount: number;
+  lastChecked: string;
+  blockReason?: string;
+}
+
+interface Props {
+  breakdown: Partial<Record<TurkishISP, ISPRow>>;
+  lang: Lang;
+}
+
+const { breakdown, lang } = Astro.props;
+const ISPs: TurkishISP[] = [
+  'turk-telekom', 'turkcell-superonline', 'turknet',
+  'vodafone-tr', 'tursat-kablonet', 'other',
+];
+
+function ispClass(verdict: string): string {
+  if (verdict === 'UP') return 'isp-up';
+  if (verdict === 'BLOCKED') return 'isp-blocked';
+  if (verdict === 'DEGRADED') return 'isp-degraded';
+  return 'isp-unknown';
+}
+---
+
+<div class="isp-grid" role="table" aria-label={t(lang, 'ispBreakdown')}>
+  <div class="isp-header" role="rowgroup">
+    <div class="isp-col-name" role="columnheader">{lang === 'tr' ? 'ISP' : 'ISP'}</div>
+    <div class="isp-col-verdict" role="columnheader">{t(lang, 'verdictUp').split(' ')[0]} / {t(lang, 'verdictBlocked').split(' ')[0]}</div>
+    <div class="isp-col-probes" role="columnheader">Probes</div>
+  </div>
+  {ISPs.map((isp) => {
+    const row = breakdown[isp] ?? { verdict: 'UNKNOWN', probeCount: 0, lastChecked: '' };
+    const label = strings[lang][isp] ?? isp;
+    return (
+      <div class={`isp-row ${ispClass(row.verdict)}`} role="row">
+        <div class="isp-name" role="cell">{label}</div>
+        <div class="isp-verdict" role="cell">
+          <span class={`isp-dot ${ispClass(row.verdict)}`} aria-label={row.verdict}></span>
+          {row.verdict}
+        </div>
+        <div class="isp-probes" role="cell">{row.probeCount}</div>
+      </div>
+    );
+  })}
+</div>
+
+<style>
+  .isp-grid { margin-top: 1.5rem; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .isp-header, .isp-row { display: grid; grid-template-columns: 1fr 1.5fr 80px; padding: 0.625rem 1rem; align-items: center; }
+  .isp-header { background: var(--surface); font-weight: 600; font-size: 0.875rem; color: var(--muted); }
+  .isp-row { border-top: 1px solid var(--border); }
+  .isp-row:hover { background: var(--surface); }
+  .isp-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 0.5rem; vertical-align: middle; }
+  .isp-up .isp-dot { background: var(--ok); }
+  .isp-blocked .isp-dot { background: var(--bad); }
+  .isp-degraded .isp-dot { background: var(--warn); }
+  .isp-unknown .isp-dot { background: var(--muted); }
+</style>

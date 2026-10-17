@@ -1,0 +1,96 @@
+---
+/**
+ * History chart component — SVG bar chart showing reachability over time.
+ *
+ * Renders a horizontal bar chart with one bar per hour bucket.
+ * Bars are stacked: green (up), red (blocked), gray (down/unknown).
+ *
+ * Called from: apps/web/src/pages/d/[domain].astro
+ * Data source: API GET /api/history/:domain?hours=24
+ */
+import type { Client } from 'astro';
+
+interface Props {
+  domain: string;
+  hours: number;
+  lang: 'tr' | 'en';
+}
+
+const { domain, hours, lang } = Astro.props;
+const apiBase = import.meta.env.PUBLIC_API_URL ?? '/api';
+
+interface ChartPoint {
+  hour: string;
+  up: number;
+  blocked: number;
+  down: number;
+  avgLatency: number | null;
+  sample: number;
+}
+
+let chartData: ChartPoint[] = [];
+let chartError: string | null = null;
+
+try {
+  const resp = await fetch(`${apiBase}/history/${encodeURIComponent(domain)}?hours=${hours}`, {
+    signal: AbortSignal.timeout(5000),
+  });
+  if (resp.ok) {
+    const data = await resp.json() as { chartData: ChartPoint[] };
+    chartData = data.chartData;
+  }
+} catch {
+  chartError = lang === 'tr' ? 'Grafik yüklenemedi' : 'Could not load chart';
+}
+---
+
+{chartData.length > 0 && (
+  <section class="history-chart">
+    <h2>{lang === 'tr' ? `Son ${hours} saat` : `Last ${hours} hours`}</h2>
+    <div class="chart-legend">
+      <span class="legend-up">{lang === 'tr' ? 'Erişilebilir' : 'Up'}</span>
+      <span class="legend-blocked">{lang === 'tr' ? 'Engellenmiş' : 'Blocked'}</span>
+      <span class="legend-down">{lang === 'tr' ? 'Açık/ Bilinmiyor' : 'Down/Unknown'}</span>
+    </div>
+    <svg
+      class="chart-svg"
+      viewBox={`0 0 ${Math.max(chartData.length * 3, 200)} ${120}`}
+      preserveAspectRatio="xMidYMid meet"
+      role="img"
+      aria-label={`${domain} reachability chart, last ${hours} hours`}
+    >
+      {chartData.map((point, i) => {
+        const x = i * 3 + 1;
+        const total = point.up + point.blocked + point.down;
+        const hUp = total > 0 ? (point.up / total) * 80 : 0;
+        const hBlocked = total > 0 ? (point.blocked / total) * 80 : 0;
+        const hDown = total > 0 ? (point.down / total) * 80 : 0;
+        const yBase = 100;
+        return (
+          <g key={point.hour} title={`${point.hour}: ↑${point.up} 🚫${point.blocked} ↓${point.down}${point.avgLatency !== null ? ` ${point.avgLatency}ms` : ''}`}>
+            {hUp > 0 && <rect x={x} y={yBase - hUp} width="2" height={hUp} fill="#22c55e" rx="1" />}
+            {hBlocked > 0 && <rect x={x} y={yBase - hUp - hBlocked} width="2" height={hBlocked} fill="#ef4444" rx="1" />}
+            {hDown > 0 && <rect x={x} y={yBase - hUp - hBlocked - hDown} width="2" height={hDown} fill="#6b7280" rx="1" />}
+          </g>
+        );
+      })}
+    </svg>
+    <p class="chart-note">{lang === 'tr' ? 'Her çubuk 1 saati temsil eder' : 'Each bar represents 1 hour'}</p>
+  </section>
+)}
+
+{chartError && (
+  <p class="chart-error">{chartError}</p>
+)}
+
+<style>
+  .history-chart { margin: 2rem 0; padding: 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+  .history-chart h2 { font-size: 1.125rem; margin-bottom: 0.75rem; }
+  .chart-legend { display: flex; gap: 1rem; margin-bottom: 0.75rem; font-size: 0.75rem; }
+  .legend-up { color: #22c55e; }
+  .legend-blocked { color: #ef4444; }
+  .legend-down { color: #6b7280; }
+  .chart-svg { width: 100%; height: auto; display: block; }
+  .chart-note { font-size: 0.75rem; color: var(--muted); margin-top: 0.5rem; }
+  .chart-error { color: var(--bad); font-size: 0.875rem; padding: 1rem; text-align: center; }
+</style>

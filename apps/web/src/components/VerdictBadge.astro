@@ -1,0 +1,47 @@
+---
+/**
+ * Verdict badge — shows status color and label.
+ */
+import type { Lang } from '../i18n/strings.js';
+import { t } from '../i18n/strings.js';
+
+interface Props {
+  verdict: string;
+  blockReason?: string;
+  lang: Lang;
+  confidence?: string;
+}
+
+const { verdict, blockReason, lang, confidence } = Astro.props;
+
+const verdictClass = verdict === 'UP' ? 'dot-up'
+  : verdict === 'BLOCKED' ? 'dot-blocked'
+  : verdict === 'DOWN_GLOBALLY' || verdict === 'DEGRADED' ? 'dot-down'
+  : 'dot-unknown';
+
+const label = t(lang, `verdict${verdict}` as any) ?? verdict;
+---
+
+<span class={`verdict-badge ${verdictClass}`} aria-label={label}>
+  <span class="verdict-dot" aria-hidden="true"></span>
+  {label}
+  {blockReason && (
+    <span class="verdict-reason">
+      — {t(lang, `blockReason${blockReason.replace('_', '')}` as any) ?? blockReason}
+    </span>
+  )}
+</span>
+
+<style>
+  .verdict-badge {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    font-size: 1.25rem; font-weight: 700; padding: 0.5rem 1rem;
+    border-radius: 8px; background: var(--surface); border: 1px solid var(--border);
+  }
+  .verdict-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+  .dot-up .verdict-dot { background: var(--ok); }
+  .dot-blocked .verdict-dot { background: var(--bad); }
+  .dot-down .verdict-dot { background: var(--warn); }
+  .dot-unknown .verdict-dot { background: var(--muted); }
+  .verdict-reason { font-size: 0.875rem; font-weight: 400; color: var(--muted); }
+</style>

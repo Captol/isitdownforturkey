@@ -1,0 +1,65 @@
+---
+/**
+ * Homepage — search form + watchlisted services.
+ */
+import Layout from '../layouts/Layout.astro';
+import { t, detectLang } from '../i18n/strings';
+
+const lang = detectLang(Astro.request.headers);
+
+interface WatchlistService { domain: string; category: string; }
+let watchlist: WatchlistService[] = [];
+try {
+  const resp = await fetch('/api/watchlist', { signal: AbortSignal.timeout(5000) });
+  if (resp.ok) {
+    const data = await resp.json() as { services: WatchlistService[] };
+    watchlist = data.services;
+  }
+} catch { /* non-fatal */ }
+---
+
+<Layout title={t(lang, 'heroTitle')} lang={lang}>
+  <section class="hero">
+    <h1>{t(lang, 'heroTitle')}</h1>
+    <p>{t(lang, 'heroDesc')}</p>
+    <form action="/d/[domain]" method="GET" class="search-form" role="search">
+      <label for="domain-input" class="sr-only">{t(lang, 'searchLabel')}</label>
+      <input
+        type="text"
+        id="domain-input"
+        name="domain"
+        placeholder={t(lang, 'searchPlaceholder')}
+        required
+        autocomplete="off"
+        aria-describedby="search-hint"
+      />
+      <button type="submit">{t(lang, 'searchButton')}</button>
+    </form>
+    <p id="search-hint" class="sr-only">
+      {lang === 'tr' ? 'Örnek: discord.com, github.com, steamcommunity.com' : 'Examples: discord.com, github.com, steamcommunity.com'}
+    </p>
+  </section>
+
+  {watchlist.length > 0 && (
+    <section class="watchlist">
+      <h2>{t(lang, 'watchlistTitle')}</h2>
+      <p class="watchlist-desc">{t(lang, 'watchlistDesc')}</p>
+      <div class="service-grid">
+        {watchlist.map((s) => (
+          <a href={`/d/${encodeURIComponent(s.domain)}`} class="service-card" aria-label={`${s.domain} — ${s.category}`}>
+            <div class="service-name">{s.domain}</div>
+            <div class="service-cat">{s.category}</div>
+          </a>
+        ))}
+      </div>
+    </section>
+  )}
+</Layout>
+
+<style>
+  .watchlist { margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border); }
+  .watchlist h2 { font-size: 1.25rem; margin-bottom: 0.5rem; }
+  .watchlist-desc { color: var(--muted); font-size: 0.875rem; margin-bottom: 1rem; }
+  .service-name { font-weight: 600; }
+  .service-cat { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+</style>

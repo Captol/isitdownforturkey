@@ -1,0 +1,57 @@
+---
+/**
+ * Browser Check component — runs a reachability probe from the visitor's browser.
+ *
+ * Renders a "Check from your browser" button that triggers the probe and
+ * displays the result inline. The probe is anonymous — only ISP/ASN is sent,
+ * not the visitor's IP address.
+ *
+ * Called from: apps/web/src/pages/d/[domain].astro
+ * Uses:        src/lib/browser-probe.ts (client-side JS)
+ * Reports to:  API POST /api/browser/report
+ */
+import type { Client } from 'astro';
+
+interface Props {
+  domain: string;
+  apiBase: string;
+  lang: 'tr' | 'en';
+}
+
+const { domain, apiBase, lang } = Astro.props;
+---
+
+<div class="browser-check" client:load>
+  <button
+    class="browser-check-btn"
+    id="browser-check-btn"
+    onclick={() => {
+      import('/src/lib/browser-probe.ts').then(async ({ runBrowserProbe }) => {
+        const btn = document.getElementById('browser-check-btn') as HTMLButtonElement | null;
+        if (btn) btn.disabled = true;
+        const result = await runBrowserProbe(domain, apiBase);
+        const statusEl = document.getElementById('browser-check-status');
+        if (statusEl) {
+          if (result.tcpConnected && result.tlsSucceeded) {
+            statusEl.innerHTML = `<span class="browser-ok">${lang === 'tr' ? '✓ Erişilebilir (tarayıcıdan)' : '✓ Reachable (from browser)'}</span>`;
+          } else {
+            statusEl.innerHTML = `<span class="browser-fail">${lang === 'tr' ? '✗ Erişilemiyor (tarayıcıdan)' : '✗ Not reachable (from browser)'}</span>`;
+          }
+        }
+      });
+    }}
+  >
+    {lang === 'tr' ? '🌐 Tarayıcıdan kontrol et' : '🌐 Check from your browser'}
+  </button>
+  <div id="browser-check-status" class="browser-check-status"></div>
+</div>
+
+<style>
+  .browser-check { margin: 1.5rem 0; padding: 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+  .browser-check-btn { background: var(--primary); color: var(--on-primary); border: none; border-radius: 6px; padding: 0.625rem 1.25rem; font-size: 0.9375rem; cursor: pointer; font-weight: 500; transition: opacity 0.15s; }
+  .browser-check-btn:hover { opacity: 0.9; }
+  .browser-check-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .browser-check-status { margin-top: 0.75rem; font-size: 0.875rem; }
+  .browser-ok { color: var(--good); font-weight: 500; }
+  .browser-fail { color: var(--bad); font-weight: 500; }
+</style>

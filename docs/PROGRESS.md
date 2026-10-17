@@ -17,7 +17,7 @@
 | **4. Türkiye Probe Agent** | ✅ DONE | Node.js/Python/Docker agent, HMAC signing, API ingest with verify + rate limit |
 | **5. Live Browser Check** | ✅ DONE | BrowserCheck component, runBrowserProbe lib, /api/browser/report endpoint |
 | **6. Watchlist & History** | ✅ DONE | SVG badge, HistoryChart, hourly bucketing, cron endpoint, /api/history |
-| **7. Security, A11y & SEO** | ⚪ PENDING | Hardening, Lighthouse 95+ |
+| **7. Security, A11y & SEO** | ✅ DONE | Security middleware, OG/Twitter/JSON-LD tags, WCAG focus outlines |
 | **8. Production Deployment** | ⚪ PENDING | Cloudflare Pages + Workers deploy |
 | **9. Post-MVP Ecosystem** | ⚪ PENDING | CLI, RSS, open data export |
 

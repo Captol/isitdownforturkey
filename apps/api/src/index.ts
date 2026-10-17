@@ -10,6 +10,14 @@ import { generateBadge, verdictToBadge } from './services/badge.js';
 
 const app = new Hono<{ Bindings: CloudflareEnvironment }>();
 
+// Security middleware — applied to all routes
+app.use('*', async (c, next) => {
+  await next();
+  c.header('X-Content-Type-Options', 'nosniff');
+  c.header('X-Frame-Options', 'DENY');
+  c.header('Cache-Control', 'public, max-age=60');
+});
+
 // Rate limiters — one per endpoint type
 const ingestLimiter = new RateLimiter(60_000, 30);   // 30 reports/min per probe
 const registerLimiter = new RateLimiter(60_000, 5);   // 5 registrations/min per IP

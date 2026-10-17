@@ -21,9 +21,27 @@ const L = t(lang, 'siteTitle');
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description ?? t(lang, 'heroDesc')} />
+    <meta name="theme-color" content="#f97316" />
     <link rel="stylesheet" href="/css/base.css" />
     <title>{title} — {L}</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={`${title} — ${L}`} />
+    <meta property="og:description" content={description ?? t(lang, 'heroDesc')} />
+    <meta property="og:locale" content={lang === 'tr' ? 'tr_TR' : 'en_US'} />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={`${title} — ${L}`} />
+    <meta name="twitter:description" content={description ?? t(lang, 'heroDesc')} />
+    <script type="application/ld+json" hoist>
+      {JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": L,
+        "description": t(lang, 'heroDesc'),
+        "url": "https://isitdownforturkey.pages.dev",
+        "inLanguage": lang,
+      })}
+    </script>
   </head>
   <body>
     <a href="#main" class="skip-link">{t(lang, 'home')}</a>

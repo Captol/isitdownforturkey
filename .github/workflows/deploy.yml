@@ -71,3 +71,5 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: apps/api
           command: deploy
+        env:
+          PROBE_HMAC_SECRET: ${{ secrets.PROBE_HMAC_SECRET }}

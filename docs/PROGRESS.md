@@ -1,7 +1,7 @@
 # Project Progress: Is It Down For Türkiye?
 
 **Last updated**: 2026-10-17  
-**Current milestone**: 6 (Watchlist, cron, history charts, SVG badge) — in progress  
+**Current milestone**: 8 (Production Deployment) — in progress  
 **Git status**: Committed on `main` branch
 
 ---
@@ -18,7 +18,7 @@
 | **5. Live Browser Check** | ✅ DONE | BrowserCheck component, runBrowserProbe lib, /api/browser/report endpoint |
 | **6. Watchlist & History** | ✅ DONE | SVG badge, HistoryChart, hourly bucketing, cron endpoint, /api/history |
 | **7. Security, A11y & SEO** | ✅ DONE | Security middleware, OG/Twitter/JSON-LD tags, WCAG focus outlines |
-| **8. Production Deployment** | ⚪ PENDING | Cloudflare Pages + Workers deploy |
+| **8. Production Deployment** | 🔄 IN PROGRESS | Cloudflare Pages + Workers deploy, CI/CD, volunteer guide |
 | **9. Post-MVP Ecosystem** | ⚪ PENDING | CLI, RSS, open data export |
 
 ---
@@ -96,4 +96,4 @@ wrangler d1 execute isitdownforturkey --file=apps/api/src/db/schema.sql
 
 1. ✅ 61/61 tests passing, typecheck clean
 2. ✅ Committed to `main`
-3. Proceed to **Milestone 7**: Security hardening, performance pass, accessibility audit
+3. Proceed to **Milestone 8**: Production Deployment — Cloudflare Pages + Workers, CI/CD, deploy docs, volunteer guide

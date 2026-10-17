@@ -23,3 +23,15 @@
 **Decision**: In-memory `RateLimiter` with periodic prune(), no external dependency.  
 **Reason**: Workers have ephemeral memory per invocation, but same-worker requests share state. For a low-traffic probe ingest endpoint, in-memory is sufficient. KV-backed would be more robust but adds complexity.
 **Ceiling**: If probe volume grows, migrate to D1/KV-backed limiter. See `# ponytail: in-memory rate limiter, move to KV if probe count > 1000/day`.
+
+## 2026-10-17 — Sitemap via API Route
+**Decision**: Use Astro dynamic `sitemap.xml.ts` API route instead of static XML file.  
+**Reason**: The set of tracked domains comes from the API watchlist; a static sitemap would go stale. An API route generates it at build time and can be cached with `max-age=3600`. Ponytail ceiling: if domain count grows large, switch to on-demand generation via Cloudflare Worker.
+
+## 2026-10-17 — robots.txt Placement
+**Decision**: Put `robots.txt` in `apps/web/public/robots.txt` as a static asset.  
+**Reason**: Simplest possible approach for a static Astro build. No need for a dynamic route — the sitemap URL is the only directive and never changes.
+
+## 2026-10-17 — Volunteer Probe Guide Location
+**Decision**: Place bilingual TR/EN probe guide at `docs/PROBES.md` (not inside `packages/probe/README.md`).  
+**Reason**: `packages/probe/README.md` is implementation-focused; the volunteer guide is operational/onboarding content that belongs in the project docs alongside ARCHITECTURE.md and PLAN.md. README.md updated to cross-link both.

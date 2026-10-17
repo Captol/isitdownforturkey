@@ -15,7 +15,7 @@ See [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) and [docs/PLAN.md](./docs/PLA
 
 ## Probe Agent
 
-Volunteer probes run from Turkish ISPs. See [packages/probe/README.md](./packages/probe/README.md).
+Volunteer probes run from Turkish ISPs. See [docs/PROBES.md](./docs/PROBES.md) for the volunteer guide and [packages/probe/README.md](./packages/probe/README.md) for implementation details.
 
 ## License
 

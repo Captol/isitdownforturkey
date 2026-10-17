@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import type { D1Database } from '@cloudflare/workers-types';
-import { runBaselineCheck, toGlobalBaseline, upsertDomain, storeBaselineMeasurement } from './baseline.js';
+import { runBaselineCheck, toGlobalBaseline, upsertDomain, storeBaselineMeasurement, bucketMeasurements } from './baseline.js';
 
 // Mock fetch for all DoH and HTTPS calls
 const mockFetch = vi.fn();
@@ -122,5 +122,46 @@ describe('D1 helpers (mocked)', () => {
       timestamp: new Date().toISOString(),
     });
     expect(runMock).toHaveBeenCalled();
+  });
+});
+
+describe('bucketMeasurements', () => {
+  it('groups rows into hourly buckets', () => {
+    const rows = [
+      { status: 'up', block_reason: null, latency_ms: 120, created_at: '2026-01-01T10:05:00Z' },
+      { status: 'up', block_reason: null, latency_ms: 130, created_at: '2026-01-01T10:55:00Z' },
+      { status: 'blocked', block_reason: 'dns_poisoning', latency_ms: null, created_at: '2026-01-01T11:10:00Z' },
+      { status: 'down', block_reason: null, latency_ms: null, created_at: '2026-01-01T11:30:00Z' },
+    ];
+    const buckets = bucketMeasurements(rows);
+    expect(buckets).toHaveLength(2);
+
+    const hour10 = buckets.find(b => b.hour === '2026-01-01T10')!;
+    expect(hour10.up).toBe(2);
+    expect(hour10.blocked).toBe(0);
+    expect(hour10.down).toBe(0);
+    expect(hour10.avgLatency).toBe(125); // avg of 120 and 130
+    expect(hour10.sample).toBe(2);
+
+    const hour11 = buckets.find(b => b.hour === '2026-01-01T11')!;
+    expect(hour11.up).toBe(0);
+    expect(hour11.blocked).toBe(1);
+    expect(hour11.down).toBe(1);
+    expect(hour11.avgLatency).toBe(null);
+    expect(hour11.sample).toBe(2);
+  });
+
+  it('returns empty array for empty input', () => {
+    expect(bucketMeasurements([])).toEqual([]);
+  });
+
+  it('handles rows with no latency', () => {
+    const rows = [
+      { status: 'up', block_reason: null, latency_ms: null, created_at: '2026-01-01T08:00:00Z' },
+    ];
+    const buckets = bucketMeasurements(rows);
+    expect(buckets).toHaveLength(1);
+    expect(buckets[0].avgLatency).toBeNull();
+    expect(buckets[0].sample).toBe(1);
   });
 });

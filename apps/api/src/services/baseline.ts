@@ -231,6 +231,47 @@ export async function storeBrowserMeasurement(
   ).run();
 }
 
+// ─── History bucketing (pure, testable) ──────────────────────────────────────
+
+export interface HourlyBucket {
+  hour: string;
+  up: number;
+  blocked: number;
+  down: number;
+  avgLatency: number | null;
+  sample: number;
+}
+
+/**
+ * Bucket measurement rows into hourly aggregates for chart rendering.
+ * Pure function — no I/O. Used by GET /api/history/:domain.
+ */
+export function bucketMeasurements(rows: Array<{
+  status: string;
+  block_reason: string | null;
+  latency_ms: number | null;
+  created_at: string;
+}>): HourlyBucket[] {
+  const buckets: Record<string, { up: number; blocked: number; down: number; avgLatency: number[]; sample: number }> = {};
+  for (const row of rows) {
+    const bucket = row.created_at.slice(0, 13); // YYYY-MM-DDTHH
+    if (!buckets[bucket]) buckets[bucket] = { up: 0, blocked: 0, down: 0, avgLatency: [], sample: 0 };
+    if (row.status === 'up') buckets[bucket].up++;
+    else if (row.status === 'blocked') buckets[bucket].blocked++;
+    else buckets[bucket].down++;
+    if (row.latency_ms !== null) buckets[bucket].avgLatency.push(row.latency_ms);
+    buckets[bucket].sample++;
+  }
+  return Object.entries(buckets).map(([hour, b]) => ({
+    hour,
+    up: b.up,
+    blocked: b.blocked,
+    down: b.down,
+    avgLatency: b.avgLatency.length ? Math.round(b.avgLatency.reduce((a, b) => a + b, 0) / b.avgLatency.length) : null,
+    sample: b.sample,
+  }));
+}
+
 // ─── Self-tests ──────────────────────────────────────────────────────────────
 
 export function runBaselineTests(): void {

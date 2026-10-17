@@ -11,10 +11,10 @@ EXIT_CODE:0
 > typecheck
 > astro check
 
-[2m18:45:35[22m [34m[content][39m Syncing content
-[2m18:45:35[22m [34m[content][39m Synced content
-[2m18:45:35[22m [34m[types][39m Generated [2m93ms[22m
-[2m18:45:35[22m [34m[check][39m Getting diagnostics for Astro files in C:\Users\İbrahim\Desktop\Deney\apps\web...
+[2m19:12:53[22m [34m[content][39m Syncing content
+[2m19:12:53[22m [34m[content][39m Synced content
+[2m19:12:53[22m [34m[types][39m Generated [2m188ms[22m
+[2m19:12:53[22m [34m[check][39m Getting diagnostics for Astro files in C:\Users\İbrahim\Desktop\Deney\apps\web...
 Result (3 files): 
 - 0 errors
 - 0 warnings

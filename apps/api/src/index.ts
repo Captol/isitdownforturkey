@@ -3,9 +3,10 @@ import { createHmac } from 'node:crypto';
 import { ProbeReportSchema, DomainParamSchema, BrowserProbeSchema } from '@isitdownforturkey/shared';
 import { validateDomain, normalizeDomain } from '@isitdownforturkey/shared';
 import { buildCheckResponse, getConfidence } from '@isitdownforturkey/shared';
-import { runBaselineCheck, toGlobalBaseline, upsertDomain, storeBaselineMeasurement, storeProbeMeasurement, storeBrowserMeasurement } from './services/baseline.js';
+import { runBaselineCheck, toGlobalBaseline, upsertDomain, storeBaselineMeasurement, storeProbeMeasurement, storeBrowserMeasurement, bucketMeasurements } from './services/baseline.js';
 import type { CloudflareEnvironment } from './bindings.js';
 import { verifyProbeSignature, RateLimiter } from '@isitdownforturkey/probe';
+import { generateBadge, verdictToBadge } from './services/badge.js';
 
 const app = new Hono<{ Bindings: CloudflareEnvironment }>();
 
@@ -210,26 +211,7 @@ app.get('/api/history/:domain', async (c) => {
       latency_ms: number | null; created_at: string; domain: string;
     }>;
 
-    // Group by hour buckets
-    const buckets: Record<string, { up: number; blocked: number; down: number; avgLatency: number[]; sample: number }> = {};
-    for (const row of results) {
-      const bucket = row.created_at.slice(0, 13); // YYYY-MM-DDTHH
-      if (!buckets[bucket]) buckets[bucket] = { up: 0, blocked: 0, down: 0, avgLatency: [], sample: 0 };
-      if (row.status === 'up') buckets[bucket].up++;
-      else if (row.status === 'blocked') buckets[bucket].blocked++;
-      else buckets[bucket].down++;
-      if (row.latency_ms !== null) buckets[bucket].avgLatency.push(row.latency_ms);
-      buckets[bucket].sample++;
-    }
-
-    const chartData = Object.entries(buckets).map(([hour, b]) => ({
-      hour,
-      up: b.up,
-      blocked: b.blocked,
-      down: b.down,
-      avgLatency: b.avgLatency.length ? Math.round(b.avgLatency.reduce((a, b) => a + b, 0) / b.avgLatency.length) : null,
-      sample: b.sample,
-    }));
+    const chartData = bucketMeasurements(results);
 
     return c.json({ domain, hours, chartData });
   } catch (err) {
@@ -318,14 +300,15 @@ app.post('/api/cron/watchlist', async (c) => {
   }
 });
 
-// GET /api/badge/:domain.svg — embeddable status badge
+// GET /api/badge/:domain — embeddable status badge (returns SVG)
 app.get('/api/badge/:domain', async (c) => {
   const domain = c.req.param('domain');
-  // TODO: Generate SVG badge based on verdict
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="110" height="20">
-    <rect width="110" height="20" rx="3" fill="#555"/>
-    <text x="5" y="14" fill="#fff" font-family="sans-serif" font-size="11">checking...</text>
-  </svg>`;
+  if (!validateDomain(domain)) return c.json({ error: 'invalid domain' }, 400);
+
+  // Run a fresh baseline check to determine current status
+  const baselineResult = await runBaselineCheck(domain);
+  const verdict: string = baselineResult.httpsReachable ? 'UP' : 'DOWN_GLOBALLY';
+  const svg = generateBadge({ domain, verdict: verdictToBadge(verdict) });
   return c.newResponse(svg, 200, { 'Content-Type': 'image/svg+xml' });
 });
 

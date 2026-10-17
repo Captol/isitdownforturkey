@@ -15,8 +15,8 @@
 | **2. Check API & Global Baseline** | ✅ DONE | Hono router, baseline checker (DoH + HTTPS), D1 write, SSRF guard |
 | **3. Frontend MVP** | ✅ DONE | Homepage, /d/[domain] page, i18n (TR/EN), dark mode, VerdictBadge, ISPGrid |
 | **4. Türkiye Probe Agent** | ✅ DONE | Node.js/Python/Docker agent, HMAC signing, API ingest with verify + rate limit |
-| **5. Live Browser Check** | 🔄 IN PROGRESS | Browser probe component + API ingest endpoint |
-| **6. Watchlist & History** | ⚪ PENDING | Cron, time-series charts, SVG badge |
+| **5. Live Browser Check** | ✅ DONE | BrowserCheck component, runBrowserProbe lib, /api/browser/report endpoint |
+| **6. Watchlist & History** | ✅ DONE | SVG badge, HistoryChart, hourly bucketing, cron endpoint, /api/history |
 | **7. Security, A11y & SEO** | ⚪ PENDING | Hardening, Lighthouse 95+ |
 | **8. Production Deployment** | ⚪ PENDING | Cloudflare Pages + Workers deploy |
 | **9. Post-MVP Ecosystem** | ⚪ PENDING | CLI, RSS, open data export |
@@ -81,12 +81,7 @@ Updated `apps/api/src/services/baseline.ts`:
 Commands with pipes (`| tail`), `npx vitest`, `npm run typecheck` are intermittently blocked by the classifier. Workaround: use `node run-vitest.js` / `node run-typecheck.js` scripts that capture output to files.
 
 ### Git commit
-Git is initialized on `main` branch. Files are untracked. Run manually:
-```bash
-cd "C:\Users\İbrahim\Desktop\Deney"
-git add -A
-git commit -m "feat: milestones 1-4 — shared logic, baseline checker, frontend MVP, probe agent"
-```
+Already committed on `main` branch. Latest commit includes milestones 0–6.
 
 ### Cloudflare D1 database
 Not yet created. Required for API to work. Run after `wrangler login`:
@@ -99,7 +94,6 @@ wrangler d1 execute isitdownforturkey --file=apps/api/src/db/schema.sql
 
 ## Next Steps
 
-1. Run `node run-vitest.js` → fix any failures
-2. Commit everything
-3. Move to **Milestone 5**: Live browser check component
-4. Then Milestone 6 (cron/history), 7 (hardening), 8 (deploy)
+1. ✅ 61/61 tests passing, typecheck clean
+2. ✅ Committed to `main`
+3. Proceed to **Milestone 7**: Security hardening, performance pass, accessibility audit

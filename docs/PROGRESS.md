@@ -1,8 +1,8 @@
 # Project Progress: Is It Down For Türkiye?
 
 **Last updated**: 2026-10-17  
-**Current milestone**: 9 (Post-MVP Ecosystem) — in progress  
-**Git status**: Committed on `main` branch (commit f1269a6)
+**Current milestone**: All milestones complete ✅  
+**Git status**: Committed on `main` branch
 
 ---
 
@@ -19,7 +19,7 @@
 | **6. Watchlist & History** | ✅ DONE | SVG badge, HistoryChart, hourly bucketing, cron endpoint, /api/history |
 | **7. Security, A11y & SEO** | ✅ DONE | Security middleware, OG/Twitter/JSON-LD tags, WCAG focus outlines |
 | **8. Production Deployment** | ✅ DONE | Cloudflare deploy CI/CD, sitemap, robots.txt, volunteer probe guide (TR/EN) |
-| **9. Post-MVP Ecosystem** | 🔄 IN PROGRESS | CLI (`npx isitdownforturkey`), RSS feed, open data export |
+| **9. Post-MVP Ecosystem** | ✅ DONE | CLI (`npx isitdownforturkey`), RSS feed, open data export |
 
 ---
 
@@ -94,6 +94,13 @@ wrangler d1 execute isitdownforturkey --file=apps/api/src/db/schema.sql
 
 ## Next Steps
 
-1. ✅ 61/61 tests passing, typecheck clean
-2. ✅ Committed to `main` (f1269a6)
-3. Proceed to **Milestone 9**: CLI tool, RSS feed, open data export
+1. ✅ 66/66 tests passing, typecheck clean, web build passes
+2. ✅ Committed to `main`
+3. **Manual steps required to deploy:**
+   - Run `wrangler login` (Cloudflare authentication)
+   - Create D1 database: `wrangler d1 create isitdownforturkey` then apply schema
+   - Set up KV namespace and bind to worker
+   - Push repo to GitHub: `git remote add origin <repo-url> && git push -u origin main`
+   - Configure Cloudflare Pages/Workers deployment via GitHub Actions secrets
+   - Generate probe HMAC secret: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`
+4. No remaining uncommitted milestones.

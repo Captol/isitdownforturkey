@@ -5,12 +5,13 @@
  * Reads: API /api/check?domain=<domain>
  * Writes: nothing (read-only for visitor)
  */
-import Layout from '../layouts/Layout.astro';
-import VerdictBadge from '../components/VerdictBadge.astro';
-import ISPGrid from '../components/ISPGrid.astro';
-import BrowserCheck from '../components/BrowserCheck.astro';
-import HistoryChart from '../components/HistoryChart.astro';
-import { t, detectLang } from '../i18n/strings.js';
+export const prerender = false;
+import Layout from '../../layouts/Layout.astro';
+import VerdictBadge from '../../components/VerdictBadge.astro';
+import ISPGrid from '../../components/ISPGrid.astro';
+import BrowserCheck from '../../components/BrowserCheck.astro';
+import HistoryChart from '../../components/HistoryChart.astro';
+import { t, detectLang } from '../../i18n/strings.js';
 
 interface Props {
   domain: string;

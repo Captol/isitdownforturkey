@@ -7,6 +7,7 @@ import { runBaselineCheck, toGlobalBaseline, upsertDomain, storeBaselineMeasurem
 import type { CloudflareEnvironment } from './bindings.js';
 import { verifyProbeSignature, RateLimiter } from '@isitdownforturkey/probe';
 import { generateBadge, verdictToBadge } from './services/badge.js';
+import { fetchBlockedFeed, fetchDailyExport, renderRssFeed } from './services/export.js';
 
 const app = new Hono<{ Bindings: CloudflareEnvironment }>();
 
@@ -318,6 +319,31 @@ app.get('/api/badge/:domain', async (c) => {
   const verdict: string = baselineResult.httpsReachable ? 'UP' : 'DOWN_GLOBALLY';
   const svg = generateBadge({ domain, verdict: verdictToBadge(verdict) });
   return c.newResponse(svg, 200, { 'Content-Type': 'image/svg+xml' });
+});
+
+// GET /api/feed.xml — RSS feed of recent blocks/outages from Türkiye probes
+app.get('/api/feed.xml', async (c) => {
+  const db = c.env.DB as D1Database;
+  try {
+    const entries = await fetchBlockedFeed(db);
+    const xml = renderRssFeed(entries);
+    return c.newResponse(xml, 200, { 'Content-Type': 'application/rss+xml' });
+  } catch (err) {
+    console.error('Feed query error:', err);
+    return c.json({ error: 'query failed' }, 500);
+  }
+});
+
+// GET /api/export/daily.json — open data snapshot of recent measurements
+app.get('/api/export/daily.json', async (c) => {
+  const db = c.env.DB as D1Database;
+  try {
+    const rows = await fetchDailyExport(db);
+    return c.json({ generatedAt: new Date().toISOString(), count: rows.length, data: rows });
+  } catch (err) {
+    console.error('Export query error:', err);
+    return c.json({ error: 'query failed' }, 500);
+  }
 });
 
 // GET /api/watchlist — curated list of tracked services

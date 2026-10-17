@@ -1,8 +1,8 @@
 # Project Progress: Is It Down For Türkiye?
 
 **Last updated**: 2026-10-17  
-**Current milestone**: 8 (Production Deployment) — in progress  
-**Git status**: Committed on `main` branch
+**Current milestone**: 9 (Post-MVP Ecosystem) — in progress  
+**Git status**: Committed on `main` branch (commit f1269a6)
 
 ---
 
@@ -18,8 +18,8 @@
 | **5. Live Browser Check** | ✅ DONE | BrowserCheck component, runBrowserProbe lib, /api/browser/report endpoint |
 | **6. Watchlist & History** | ✅ DONE | SVG badge, HistoryChart, hourly bucketing, cron endpoint, /api/history |
 | **7. Security, A11y & SEO** | ✅ DONE | Security middleware, OG/Twitter/JSON-LD tags, WCAG focus outlines |
-| **8. Production Deployment** | 🔄 IN PROGRESS | Cloudflare Pages + Workers deploy, CI/CD, volunteer guide |
-| **9. Post-MVP Ecosystem** | ⚪ PENDING | CLI, RSS, open data export |
+| **8. Production Deployment** | ✅ DONE | Cloudflare deploy CI/CD, sitemap, robots.txt, volunteer probe guide (TR/EN) |
+| **9. Post-MVP Ecosystem** | 🔄 IN PROGRESS | CLI (`npx isitdownforturkey`), RSS feed, open data export |
 
 ---
 
@@ -95,5 +95,5 @@ wrangler d1 execute isitdownforturkey --file=apps/api/src/db/schema.sql
 ## Next Steps
 
 1. ✅ 61/61 tests passing, typecheck clean
-2. ✅ Committed to `main`
-3. Proceed to **Milestone 8**: Production Deployment — Cloudflare Pages + Workers, CI/CD, deploy docs, volunteer guide
+2. ✅ Committed to `main` (f1269a6)
+3. Proceed to **Milestone 9**: CLI tool, RSS feed, open data export

@@ -20,3 +20,17 @@ Volunteer probes run from Turkish ISPs. See [docs/PROBES.md](./docs/PROBES.md) f
 ## License
 
 MIT — see [LICENSE](./LICENSE).
+
+## CLI
+
+```bash
+npx isitdownforturkey github.com
+npx isitdownforturkey discord.com --json
+```
+
+## Open Data
+
+```bash
+curl https://isitdownforturkey.pages.dev/api/feed.xml        # RSS
+curl https://isitdownforturkey.pages.dev/api/export/daily.json  # JSON snapshot
+```

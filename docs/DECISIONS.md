@@ -35,3 +35,11 @@
 ## 2026-10-17 — Volunteer Probe Guide Location
 **Decision**: Place bilingual TR/EN probe guide at `docs/PROBES.md` (not inside `packages/probe/README.md`).  
 **Reason**: `packages/probe/README.md` is implementation-focused; the volunteer guide is operational/onboarding content that belongs in the project docs alongside ARCHITECTURE.md and PLAN.md. README.md updated to cross-link both.
+
+## 2026-10-17 — CLI Zero-Dependency Design
+**Decision**: `packages/cli/bin/cli.js` uses only built-in `node:fetch` — no npm deps.  
+**Reason**: CLI is distributed via `npx`; adding dependencies bloats the install path and slows first use. The API is simple enough that a single fetch call suffices. ponytail: could add color output or richer formatting later.
+
+## 2026-10-17 — RSS Feed & Open Data Export
+**Decision**: Add `/api/feed.xml` (RSS of recent blocks) and `/api/export/daily.json` (last 24h snapshot, ≤500 rows).  
+**Reason**: Supports community monitoring (RSS readers) and open-data reuse (JSON). Both are read-only, no auth, rate-limited by D1 free-tier row limits. ponytail: if row volume grows, add pagination and date-range params.

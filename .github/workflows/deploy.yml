@@ -61,7 +61,7 @@ jobs:
       - run: npm ci
       - name: Apply D1 schema
         run: |
-          wrangler d1 execute isitdownforturkey --file=apps/api/src/db/schema.sql --remote
+          wrangler d1 execute is-it-down-tr --file=apps/api/src/db/schema.sql --remote
         env:
           CLOUDFLARE_D1_DATABASE_ID: ${{ secrets.CLOUDFLARE_D1_DATABASE_ID }}
       - name: Deploy API Worker

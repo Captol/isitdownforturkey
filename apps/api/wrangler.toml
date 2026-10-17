@@ -11,5 +11,5 @@ NODE_ENV = "production"
 
 [[d1_databases]]
 binding = "DB"
-database_name = "isitdownforturkey"
-database_id = "${CLOUDFLARE_D1_DATABASE_ID}"
+database_name = "is-it-down-tr"
+database_id = "4f92ca90-1cc9-4931-977f-fe1176dcb15b"

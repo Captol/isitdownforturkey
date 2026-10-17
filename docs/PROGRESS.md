@@ -2,7 +2,7 @@
 
 **Last updated**: 2026-10-17  
 **Current milestone**: All milestones complete ✅  
-**Git status**: Committed on `main` branch (7 commits)
+**Git status**: Working tree has uncommitted deploy config fixes
 
 ---
 
@@ -84,11 +84,10 @@ Commands with pipes (`| tail`), `npx vitest`, `npm run typecheck` are intermitte
 Already committed on `main` branch. Latest commit includes all 9 milestones plus build artifact cleanup.
 
 ### Cloudflare D1 database
-Not yet created. Required for API to work. Run after `wrangler login`:
-```bash
-wrangler d1 create isitdownforturkey
-wrangler d1 execute isitdownforturkey --file=apps/api/src/db/schema.sql
-```
+✅ Created and schema applied (4 tables: domains, measurements, probe_nodes, hourly_rollups). Database: `is-it-down-tr` (UUID: `4f92ca90-1cc9-4931-977f-fe1176dcb15b`). wrangler.toml binding updated.
+
+### GitHub repo
+Not yet set up — requires manual step (see Next Steps below).
 
 ---
 
@@ -97,10 +96,20 @@ wrangler d1 execute isitdownforturkey --file=apps/api/src/db/schema.sql
 1. ✅ 66/66 tests passing, typecheck clean, web build passes
 2. ✅ Committed to `main` (7 commits, including `.gitignore` and build artifact cleanup)
 3. **Manual steps required to deploy (when ready):**
-   - Run `wrangler login` (Cloudflare authentication)
-   - Create D1 database: `wrangler d1 create isitdownforturkey` then apply schema
-   - Set up KV namespace and bind to worker
-   - Push repo to GitHub: `git remote add origin <repo-url> && git push -u origin main`
-   - Configure Cloudflare Pages/Workers deployment via GitHub Actions secrets
-   - Generate probe HMAC secret: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`
+   - ✅ `wrangler login` — done (logged in as ibo.mico1@gmail.com)
+   - ✅ D1 database created and schema applied (`is-it-down-tr`)
+   - ✅ wrangler.toml updated with correct DB binding
+   - **Push to GitHub**: Create a new repo at github.com (e.g. `isitdownforturkey`), then:
+     ```bash
+     git remote add origin https://github.com/<your-username>/isitdownforturkey.git
+     git push -u origin main
+     ```
+   - **GitHub Actions secrets** (in repo Settings → Secrets and variables → Actions):
+     - `CLOUDFLARE_API_TOKEN` — your Cloudflare API token
+     - `CLOUDFLARE_ACCOUNT_ID` — `32bce08ecb4537a3e637a1843dc50445`
+     - `CLOUDFLARE_D1_DATABASE_ID` — `4f92ca90-1cc9-4931-977f-fe1176dcb15b`
+   - **Generate probe HMAC secret** (for local dev / future probe registration):
+     ```bash
+     node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+     ```
 4. No remaining uncommitted milestones. Project is feature-complete.

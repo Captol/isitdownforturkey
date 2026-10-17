@@ -34,3 +34,5 @@ npm-debug.log*
 # Testing
 coverage/
 .nyc_output/
+test-output.txt
+typecheck-results.txt

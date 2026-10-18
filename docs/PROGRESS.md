@@ -2,7 +2,7 @@
 
 **Last updated**: 2026-10-18  
 **Current milestone**: All milestones complete ✅  
-**Git status**: 10 commits on main (Vercel deployment fix)
+**Git status**: 11 commits on main (Vercel deploy + UX bug fixes)
 
 ---
 

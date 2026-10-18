@@ -2,5 +2,7 @@
   "buildCommand": "npm install --legacy-peer-deps && npm run build --workspace=apps/web",
   "outputDirectory": "apps/web/.vercel/output",
   "installCommand": "npm install --legacy-peer-deps",
-  "regions": ["iad1"]
+  "regions": [
+    "iad1"
+  ]
 }

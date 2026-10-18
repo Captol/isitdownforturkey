@@ -17,9 +17,13 @@ interface Props {
   domain: string;
 }
 
-const { domain } = Astro.props;
+// Vercel adapter may not pass route params; extract from request URL as fallback.
+const { domain: domainProp } = Astro.props;
+const domain = domainProp
+  ?? new URL(Astro.request.url).pathname.match(/^\/d\/([^/]+?)\/?$/)?.[1]
+  ?? '';
 const lang = detectLang(Astro.request.headers);
-const apiBase = import.meta.env.PUBLIC_API_URL ?? '/api';
+const apiBase = import.meta.env.PUBLIC_API_URL ?? 'https://isitdownforturkey-api.isitdownforturkey-api.workers.dev';
 
 type JsonData = {
   verdict: string;

@@ -5,11 +5,13 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "typecheck": "astro check"
+    "typecheck": "astro check",
+    "postbuild": "node patch-config.js"
   },
   "dependencies": {
-    "astro": "^5.5.5",
-    "@astrojs/cloudflare": "^12.1.0"
+    "@astrojs/cloudflare": "^12.6.13",
+    "@astrojs/vercel": "^5.2.0",
+    "astro": "^5.5.5"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10"

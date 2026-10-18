@@ -1,8 +1,11 @@
 import { defineConfig } from 'astro/config';
-import cloudflare from '@astrojs/cloudflare';
+import vercel from '@astrojs/vercel/serverless';
 
 export default defineConfig({
-  adapter: cloudflare(),
+  output: 'server',
+  adapter: vercel({
+    runtime: 'nodejs20.x',
+  }),
   site: 'https://isitdownforturkey.pages.dev',
   i18n: { defaultLocale: 'tr', locales: ['tr', 'en'] },
 });

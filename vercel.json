@@ -4,5 +4,8 @@
   "installCommand": "npm install --legacy-peer-deps",
   "regions": [
     "iad1"
-  ]
+  ],
+  "buildEnv": {
+    "PUBLIC_API_URL": "https://isitdownforturkey-api.isitdownforturkey-api.workers.dev"
+  }
 }

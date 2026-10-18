@@ -1,3 +1,5 @@
+# Only work inside this folder (Desktop\Deney). Never read, edit, or run commands against any path outside it.
+
 # isitdownforturkey: Project Rules for Claude Code
 
 ## What this project is

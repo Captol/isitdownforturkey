@@ -36,3 +36,5 @@ coverage/
 .nyc_output/
 test-output.txt
 typecheck-results.txt
+
+.vercel

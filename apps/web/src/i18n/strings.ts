@@ -73,8 +73,13 @@ export function t(lang: Lang, key: keyof typeof strings[Lang]): string {
   return strings[lang][key];
 }
 
-/** Derive language from Accept-Language header (default: tr). */
-export function detectLang(headers: Headers): Lang {
+/** Derive language from Accept-Language header or ?lang= query param (default: tr). */
+export function detectLang(headers: Headers, url?: string): Lang {
+  if (url) {
+    const params = new URL(url).searchParams;
+    const qp = params.get('lang');
+    if (qp === 'en' || qp === 'tr') return qp as Lang;
+  }
   const accept = headers.get('accept-language') ?? '';
   return accept.includes('en') && !accept.includes('tr') ? 'en' : 'tr';
 }

@@ -9,7 +9,7 @@ declare module '../i18n/strings' {
   export const strings: { tr: Record<string, string>; en: Record<string, string> };
   export type Lang = 'tr' | 'en';
   export function t(lang: Lang, key: string): string;
-  export function detectLang(headers: Headers): Lang;
+  export function detectLang(headers: Headers, url?: string): Lang;
 }
 
 declare module '../layouts/Layout.astro' {

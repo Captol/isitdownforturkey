@@ -22,7 +22,7 @@ const { domain: domainProp } = Astro.props;
 const domain = domainProp
   ?? new URL(Astro.request.url).pathname.match(/^\/d\/([^/]+?)\/?$/)?.[1]
   ?? '';
-const lang = detectLang(Astro.request.headers);
+const lang = detectLang(Astro.request.headers, Astro.request.url);
 const apiBase = import.meta.env.PUBLIC_API_URL ?? 'https://isitdownforturkey-api.isitdownforturkey-api.workers.dev';
 
 type JsonData = {

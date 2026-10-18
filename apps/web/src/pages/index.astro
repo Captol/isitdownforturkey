@@ -5,7 +5,7 @@
 import Layout from '../layouts/Layout.astro';
 import { t, detectLang } from '../i18n/strings';
 
-const lang = detectLang(Astro.request.headers);
+const lang = detectLang(Astro.request.headers, Astro.request.url);
 
 interface WatchlistService { domain: string; category: string; }
 let watchlist: WatchlistService[] = [];

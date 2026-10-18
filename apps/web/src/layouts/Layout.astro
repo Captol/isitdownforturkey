@@ -41,7 +41,7 @@ const L = t(lang, 'siteTitle');
         "@type": "WebSite",
         "name": L,
         "description": t(lang, 'heroDesc'),
-        "url": "https://isitdownforturkey.pages.dev",
+        "url": new URL(Astro.request.url).origin,
         "inLanguage": lang,
       })}
     </script>
@@ -63,7 +63,7 @@ const L = t(lang, 'siteTitle');
         </a>
         <nav aria-label="Primary">
           <a href="/">{t(lang, 'home')}</a>
-          <a href="https://github.com/isitdownforturkey/isitdownforturkey" target="_blank" rel="noopener noreferrer">{t(lang, 'github')}</a>
+          <a href="https://github.com/Captol/isitdownforturkey" target="_blank" rel="noopener noreferrer">{t(lang, 'github')}</a>
         </nav>
       </div>
     </header>
@@ -73,7 +73,7 @@ const L = t(lang, 'siteTitle');
     <footer class="site-footer">
       <div class="container">
         <p>{t(lang, 'footerText')}</p>
-        <p><a href="https://github.com/isitdownforturkey/isitdownforturkey" target="_blank" rel="noopener noreferrer">{t(lang, 'footerLink')}</a></p>
+        <p><a href="https://github.com/Captol/isitdownforturkey" target="_blank" rel="noopener noreferrer">{t(lang, 'footerLink')}</a></p>
       </div>
     </footer>
   </body>

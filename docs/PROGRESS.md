@@ -2,7 +2,8 @@
 
 **Last updated**: 2026-10-18  
 **Current milestone**: All milestones complete ✅  
-**Git status**: 11 commits on main (Vercel deploy + UX bug fixes)
+**Git status**: 12 commits on main (Vercel deploy + UX bug fixes)
+**Live URL**: https://web-p2ajkq5p9-sadasd21.vercel.app
 
 ---
 

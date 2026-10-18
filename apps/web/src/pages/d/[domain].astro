@@ -38,7 +38,7 @@ let json: JsonData | null = null;
 let error: string | null = null;
 
 try {
-  const resp = await fetch(`${apiBase}/check?domain=${encodeURIComponent(domain)}`, {
+  const resp = await fetch(`${apiBase}/api/check?domain=${encodeURIComponent(domain)}`, {
     signal: AbortSignal.timeout(8000),
   });
   if (!resp.ok) throw new Error(`API ${resp.status}`);

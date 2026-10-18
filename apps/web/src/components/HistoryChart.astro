@@ -16,7 +16,7 @@ interface Props {
 }
 
 const { domain, hours, lang } = Astro.props;
-const apiBase = import.meta.env.PUBLIC_API_URL ?? '/api';
+const apiBase = import.meta.env.PUBLIC_API_URL ?? 'https://isitdownforturkey-api.isitdownforturkey-api.workers.dev';
 
 interface ChartPoint {
   hour: string;

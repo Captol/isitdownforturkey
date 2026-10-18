@@ -4,7 +4,7 @@
   "outputDirectory": ".vercel/output",
   "devCommand": "npm run dev",
   "installCommand": "npm install --legacy-peer-deps",
-  "buildEnv": {
+  "env": {
     "PUBLIC_API_URL": "https://isitdownforturkey-api.isitdownforturkey-api.workers.dev"
   }
 }

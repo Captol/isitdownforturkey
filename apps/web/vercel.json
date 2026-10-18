@@ -3,10 +3,5 @@
   "buildCommand": "npm run build",
   "outputDirectory": ".vercel/output",
   "devCommand": "npm run dev",
-  "installCommand": "npm install --legacy-peer-deps",
-  "functions": {
-    "vercel/output/functions/render.func/__manifest.json": {
-      "runtime": "nodejs22.x"
-    }
-  }
+  "installCommand": "npm install --legacy-peer-deps"
 }

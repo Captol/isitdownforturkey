@@ -24,9 +24,9 @@ CREATE TABLE IF NOT EXISTS measurements (
   created_at   TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
-CREATE INDEX idx_meas_domain ON measurements(domain_id);
-CREATE INDEX idx_meas_isp ON measurements(isp);
-CREATE INDEX idx_meas_time ON measurements(created_at);
+CREATE INDEX IF NOT EXISTS idx_meas_domain ON measurements(domain_id);
+CREATE INDEX IF NOT EXISTS idx_meas_isp ON measurements(isp);
+CREATE INDEX IF NOT EXISTS idx_meas_time ON measurements(created_at);
 
 CREATE TABLE IF NOT EXISTS probe_nodes (
   id              INTEGER PRIMARY KEY AUTOINCREMENT,

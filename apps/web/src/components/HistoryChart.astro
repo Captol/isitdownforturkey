@@ -31,7 +31,7 @@ let chartData: ChartPoint[] = [];
 let chartError: string | null = null;
 
 try {
-  const resp = await fetch(`${apiBase}/history/${encodeURIComponent(domain)}?hours=${hours}`, {
+  const resp = await fetch(`${apiBase}/api/history/${encodeURIComponent(domain)}?hours=${hours}`, {
     signal: AbortSignal.timeout(5000),
   });
   if (resp.ok) {

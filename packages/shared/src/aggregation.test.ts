@@ -26,9 +26,22 @@ describe('buildCheckResponse', () => {
     expect(r.verdict).toBe('DOWN_GLOBALLY');
   });
 
-  it('returns UP with global baseline when no probes exist', () => {
+  it('returns UNKNOWN when global baseline is up but no Turkish probes exist', () => {
+    // Global baseline runs from outside Turkey — cannot confirm Turkey reachability
     const r = buildCheckResponse({ domain: 'no-data.example', globalBaseline: baseline, ispProbes: {} });
+    expect(r.verdict).toBe('UNKNOWN');
+    expect(r.confidence).toBe('none');
+  });
+
+  it('returns UP with global baseline when probes exist and agree', () => {
+    const probes = {
+      'turk-telekom': [{
+        domain: 'example.com', isp: 'turk-telekom' as const, asn: 9121,
+        tcpConnected: true, tlsSucceeded: true, httpStatus: 200,
+        latencyMs: 120, timestamp: new Date().toISOString(),
+      }],
+    };
+    const r = buildCheckResponse({ domain: 'example.com', globalBaseline: baseline, ispProbes: probes });
     expect(r.verdict).toBe('UP');
-    expect(r.confidence).toBe('low');
   });
 });

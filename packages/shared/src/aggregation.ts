@@ -159,13 +159,15 @@ export function buildCheckResponse({
     }
   }
 
-  // Fallback: use global baseline when no probe/browser data is available yet
-  if (overallVerdict === 'UNKNOWN' && globalBaseline !== null) {
+  // Fallback: use global baseline ONLY when we have at least one Turkish probe
+  // (proves we have local coverage). Without Turkish probes, global baseline is
+  // measured from outside Türkiye and cannot distinguish Turkey-blocked sites.
+  const totalProbeCount = Object.values(ispProbes).reduce((sum, probes) => sum + probes.length, 0);
+  if (overallVerdict === 'UNKNOWN' && globalBaseline !== null && totalProbeCount > 0) {
     if (globalBaseline.httpsReachable) {
       overallVerdict = 'UP';
       overallConfidence = 'low';
     }
-    // globallyDown is already handled below
   }
 
   // Override with global baseline

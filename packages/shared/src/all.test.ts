@@ -102,9 +102,9 @@ describe('buildCheckResponse', () => {
     expect(r.verdict).toBe('DOWN_GLOBALLY');
   });
 
-  it('returns UP with global baseline when no probes exist', () => {
+  it('returns UNKNOWN when global baseline is up but no Turkish probes exist', () => {
     const r = buildCheckResponse({ domain: 'no-data.example', globalBaseline: baseline, ispProbes: {} });
-    expect(r.verdict).toBe('UP');
-    expect(r.confidence).toBe('low');
+    expect(r.verdict).toBe('UNKNOWN');
+    expect(r.confidence).toBe('none');
   });
 });

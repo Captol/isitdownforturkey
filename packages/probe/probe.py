@@ -213,8 +213,25 @@ def sign_report(token: str, report: dict[str, Any]) -> str:
 
 # ─── Main Probe Logic ────────────────────────────────────────────────────────
 
+def detect_isp(asn: int) -> str:
+    """Classify ASN into a Turkish ISP name. Returns 'other' if unknown."""
+    # Known Turkish ISP ASNs (sources: RIPE NCC, ARIN, public BGP)
+    ISP_ASNS: dict[str, list[int]] = {
+        'turk-telekom': [9121],
+        'turkcell-superonline': [34984, 44244],
+        'turknet': [12735],
+        'vodafone-tr': [15897, 61311],
+        'tursat-kablonet': [47524, 55671],
+    }
+    for isp, asns in ISP_ASNS.items():
+        if asn in asns:
+            return isp
+    return 'other'
+
+
 async def probe_domain(domain: str, token: str, probe_id: str, asn: int) -> Optional[dict[str, Any]]:
     """Run full probe for a domain."""
+    isp = detect_isp(asn)
     # DNS resolution
     system_dns, doh_cf, doh_google = await asyncio.gather(
         resolve_system_dns(domain),
@@ -228,7 +245,7 @@ async def probe_domain(domain: str, token: str, probe_id: str, asn: int) -> Opti
         return {
             "domain": domain, "probe_id": probe_id,
             "timestamp": datetime.now(timezone.utc).isoformat(),
-            "asn": asn, "isp": "other",
+            "asn": asn, "isp": isp,
             "system_dns": system_dns or None,
             "doh_cloudflare": doh_cf or None,
             "doh_google": doh_google or None,
@@ -242,7 +259,7 @@ async def probe_domain(domain: str, token: str, probe_id: str, asn: int) -> Opti
         return {
             "domain": domain, "probe_id": probe_id,
             "timestamp": datetime.now(timezone.utc).isoformat(),
-            "asn": asn, "isp": "other",
+            "asn": asn, "isp": isp,
             "system_dns": system_dns or None,
             "doh_cloudflare": doh_cf or None,
             "doh_google": doh_google or None,
@@ -259,7 +276,7 @@ async def probe_domain(domain: str, token: str, probe_id: str, asn: int) -> Opti
     return {
         "domain": domain, "probe_id": probe_id,
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "asn": asn, "isp": "other",
+        "asn": asn, "isp": isp,
         "system_dns": system_dns or None,
         "doh_cloudflare": doh_cf or None,
         "doh_google": doh_google or None,

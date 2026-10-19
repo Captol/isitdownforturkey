@@ -89,12 +89,14 @@ async def detect_asn() -> int:
     """Detect public ASN via ip-api.com (free, no key)."""
     try:
         req = urllib.request.Request("http://ip-api.com/json/?fields=as")
-        async with asyncio.timeout(5):
-            async with asyncio.to_thread(urllib.request.urlopen, req) as resp:
-                data = json.loads(await asyncio.to_thread(resp.read))
-                as_info = data.get("as", "")
-                if as_info:
-                    return int(as_info.replace("AS", ""))
+        resp = await asyncio.to_thread(urllib.request.urlopen, req)
+        try:
+            data = json.loads(await asyncio.to_thread(resp.read))
+        finally:
+            resp.close()
+        as_info = data.get("as", "")
+        if as_info:
+            return int(as_info.replace("AS", ""))
     except Exception:
         pass
     return 0
@@ -116,10 +118,12 @@ async def resolve_doh(domain: str, url: str) -> list[str]:
         encoded = urllib.parse.quote(domain, safe="")
         doh_url = f"{url}?name={encoded}&type=A"
         req = urllib.request.Request(doh_url, headers={"Accept": "application/dns-json"})
-        async with asyncio.timeout(5):
-            async with asyncio.to_thread(urllib.request.urlopen, req) as resp:
-                data = json.loads(await asyncio.to_thread(resp.read))
-                return [a["data"] for a in data.get("Answer", [])]
+        resp = await asyncio.to_thread(urllib.request.urlopen, req)
+        try:
+            data = json.loads(await asyncio.to_thread(resp.read))
+            return [a["data"] for a in data.get("Answer", [])]
+        finally:
+            resp.close()
     except Exception:
         return []
 
@@ -169,16 +173,19 @@ async def test_http(domain: str) -> dict[str, Any]:
     try:
         url = f"https://{domain}/"
         req = urllib.request.Request(url, headers={"User-Agent": "isitdownforturkey-probe/1.0"})
-        async with asyncio.timeout(8):
-            async with asyncio.to_thread(urllib.request.urlopen, req, context=ctx) as resp:
-                body = await asyncio.to_thread(resp.read).decode("utf-8", errors="replace")
-                title_match = __import__("re").search(r"<title[^>]*>([^<]+)</title>", body, re.IGNORECASE)
-                return {
-                    "status": resp.status,
-                    "title": title_match.group(1).strip() if title_match else None,
-                    "body_snippet": body[:500],
-                    "latency_ms": int((time.monotonic() - start) * 1000),
-                }
+        resp = await asyncio.to_thread(urllib.request.urlopen, req, context=ctx)
+        try:
+            body_bytes = await asyncio.to_thread(resp.read)
+            body = body_bytes.decode("utf-8", errors="replace")
+            title_match = __import__("re").search(r"<title[^>]*>([^<]+)</title>", body, re.IGNORECASE)
+            return {
+                "status": resp.status,
+                "title": title_match.group(1).strip() if title_match else None,
+                "body_snippet": body[:500],
+                "latency_ms": int((time.monotonic() - start) * 1000),
+            }
+        finally:
+            resp.close()
     except urllib.error.HTTPError as e:
         return {"status": e.code, "latency_ms": int((time.monotonic() - start) * 1000)}
     except Exception as e:
@@ -300,12 +307,14 @@ async def submit_report(api_url: str, token: str, report: dict[str, Any]) -> tup
             headers={"Content-Type": "application/json"},
             method="POST",
         )
-        async with asyncio.timeout(10):
-            async with asyncio.to_thread(urllib.request.urlopen, req) as resp:
-                if resp.status != 200:
-                    body = await asyncio.to_thread(resp.read).decode()
-                    return False, f"HTTP {resp.status}: {body}"
-                return True, None
+        resp = await asyncio.to_thread(urllib.request.urlopen, req)
+        try:
+            if resp.status != 200:
+                body = await asyncio.to_thread(resp.read)
+                return False, f"HTTP {resp.status}: {body.decode()}"
+            return True, None
+        finally:
+            resp.close()
     except urllib.error.HTTPError as e:
         return False, f"HTTP {e.code}: {e.reason}"
     except Exception as e:
@@ -331,6 +340,7 @@ async def main() -> None:
     consecutive_failures = state.get("consecutive_failures", 0)
 
     async def run_cycle() -> None:
+        nonlocal consecutive_failures
         print(f"[{datetime.now().isoformat()}] Probing {len(domains)} domains...")
         for domain in domains:
             try:

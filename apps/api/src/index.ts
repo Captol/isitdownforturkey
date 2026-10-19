@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import { createHmac } from 'node:crypto';
-import { ProbeReportSchema, DomainParamSchema, BrowserProbeSchema } from '@isitdownforturkey/shared';
+import { ProbeReportSchema, DomainParamSchema, BrowserProbeSchema, TurkishISP } from '@isitdownforturkey/shared';
 import { validateDomain, normalizeDomain } from '@isitdownforturkey/shared';
 import { buildCheckResponse, getConfidence } from '@isitdownforturkey/shared';
 import { runBaselineCheck, toGlobalBaseline, upsertDomain, storeBaselineMeasurement, storeProbeMeasurement, storeBrowserMeasurement, bucketMeasurements } from './services/baseline.js';
@@ -58,7 +58,7 @@ app.get('/api/check', async (c) => {
   // Query recent probe and browser measurements from D1
   const since = new Date(Date.now() - 6 * 3600_000).toISOString();
   let ispProbes: Record<string, Array<{ domain: string; isp: string; asn: number; tcpConnected: boolean; tlsSucceeded: boolean; httpStatus?: number; blockReason?: string; latencyMs: number; timestamp: string }>> = {};
-  let browserProbe: { domain: string; timestamp: string; tcpConnected: boolean; tlsSucceeded: boolean; httpStatus?: number; latencyMs: number; asn?: number; isp?: string } | null = null;
+  let browserProbe: { domain: string; timestamp: string; tcpConnected: boolean; tlsSucceeded: boolean; httpStatus?: number; latencyMs: number; asn?: number; isp?: TurkishISP } | null = null;
   try {
     const probeRows = await db.prepare(
       `SELECT m.isp, m.asn, m.status, m.block_reason, m.latency_ms, m.payload
@@ -103,7 +103,7 @@ app.get('/api/check', async (c) => {
         httpStatus: payload?.httpStatus,
         latencyMs: browserRow.latency_ms ?? 0,
         asn: browserRow.asn ?? undefined,
-        isp: browserRow.isp as string | undefined,
+        isp: browserRow.isp as TurkishISP | undefined,
       };
     }
   } catch (err) {

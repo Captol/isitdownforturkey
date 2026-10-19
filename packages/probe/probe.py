@@ -60,6 +60,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--api-url", default=DEFAULT_API_URL, help="API base URL")
     parser.add_argument("--interval", type=int, default=DEFAULT_INTERVAL, help="Polling interval (seconds)")
     parser.add_argument("--domains", nargs="*", default=[], help="Domains to probe")
+    parser.add_argument("--asn", type=int, default=0, help="Override ASN (from register response)")
     return parser.parse_args()
 
 # ─── Token & State ───────────────────────────────────────────────────────────
@@ -86,19 +87,30 @@ def save_state(state: dict[str, Any]) -> None:
 # ─── ASN Detection ───────────────────────────────────────────────────────────
 
 async def detect_asn() -> int:
-    """Detect public ASN via ip-api.com (free, no key)."""
-    try:
-        req = urllib.request.Request("http://ip-api.com/json/?fields=as")
-        resp = await asyncio.to_thread(urllib.request.urlopen, req)
+    """Detect public ASN via free geo-IP APIs (no key required)."""
+    # Fallback chain: each service works from different networks
+    endpoints = [
+        ("http://ip-api.com/json/?fields=as", "as"),
+        ("https://ipinfo.io/json?token=", "asn"),  # ipinfo.io free tier without token returns limited fields
+        ("https://ipapi.co/json/", "asn"),
+    ]
+    for url, field in endpoints:
         try:
-            data = json.loads(await asyncio.to_thread(resp.read))
-        finally:
-            resp.close()
-        as_info = data.get("as", "")
-        if as_info:
-            return int(as_info.replace("AS", ""))
-    except Exception:
-        pass
+            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"})
+            resp = await asyncio.to_thread(urllib.request.urlopen, req, timeout=8)
+            try:
+                data = json.loads(await asyncio.to_thread(resp.read))
+            finally:
+                resp.close()
+            if field in data and data[field]:
+                val = str(data[field])
+                # ip-api.com returns "AS12345 XYZ"; ipinfo/ipapi return "AS12345" or 12345
+                import re
+                m = re.search(r"(\d+)", val)
+                if m:
+                    return int(m.group(1))
+        except Exception:
+            continue
     return 0
 
 # ─── DNS Resolution ──────────────────────────────────────────────────────────
@@ -145,9 +157,8 @@ async def test_tcp_connect(domain: str) -> tuple[bool, int]:
         return False, int((time.monotonic() - start) * 1000)
 
 async def test_tls(domain: str) -> tuple[bool, Optional[str], int]:
-    """Test TLS handshake."""
+    """Test TLS handshake. Returns (ok, classification, latency_ms)."""
     start = time.monotonic()
-    loop = asyncio.get_event_loop()
     ctx = ssl.create_default_context()
     ctx.check_hostname = False
     ctx.verify_mode = ssl.CERT_NONE
@@ -160,9 +171,17 @@ async def test_tls(domain: str) -> tuple[bool, Optional[str], int]:
             await writer.wait_closed()
             return True, None, int((time.monotonic() - start) * 1000)
     except ssl.SSLError as e:
-        return False, f"ssl:{e.code}", int((time.monotonic() - start) * 1000)
-    except (asyncio.TimeoutError, OSError, ConnectionError) as e:
-        return False, f"{type(e).__name__}:{e}", int((time.monotonic() - start) * 1000)
+        code = getattr(e, 'code', None)
+        reason = f"ssl:{code}" if code is not None else "ssl_error"
+        return False, reason, int((time.monotonic() - start) * 1000)
+    except asyncio.TimeoutError:
+        return False, "timeout", int((time.monotonic() - start) * 1000)
+    except ConnectionResetError:
+        return False, "reset", int((time.monotonic() - start) * 1000)
+    except OSError as e:
+        return False, f"os_error:{type(e).__name__}", int((time.monotonic() - start) * 1000)
+    except ConnectionError as e:
+        return False, f"connection_error:{e}", int((time.monotonic() - start) * 1000)
 
 async def test_http(domain: str) -> dict[str, Any]:
     """Make HTTP GET and collect response info."""
@@ -172,7 +191,11 @@ async def test_http(domain: str) -> dict[str, Any]:
     ctx.verify_mode = ssl.CERT_NONE
     try:
         url = f"https://{domain}/"
-        req = urllib.request.Request(url, headers={"User-Agent": "isitdownforturkey-probe/1.0"})
+        req = urllib.request.Request(url, headers={
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            "Accept-Language": "en-US,en;q=0.5",
+        })
         resp = await asyncio.to_thread(urllib.request.urlopen, req, context=ctx)
         try:
             body_bytes = await asyncio.to_thread(resp.read)
@@ -330,8 +353,8 @@ async def main() -> None:
         print("ERROR: No probe token. Register at /api/probes/register or set PROBE_TOKEN.", file=sys.stderr)
         sys.exit(1)
 
-    print("Detecting ASN...")
-    asn = await detect_asn()
+    print("Detecting ASN..." if args.asn == 0 else "Using provided ASN...")
+    asn = args.asn if args.asn else await detect_asn()
     print(f"ASN: {asn or '(unknown)'}")
 
     domains = args.domains or DEFAULT_DOMAINS

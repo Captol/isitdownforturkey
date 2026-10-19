@@ -129,7 +129,10 @@ async def resolve_doh(domain: str, url: str) -> list[str]:
     try:
         encoded = urllib.parse.quote(domain, safe="")
         doh_url = f"{url}?name={encoded}&type=A"
-        req = urllib.request.Request(doh_url, headers={"Accept": "application/dns-json"})
+        req = urllib.request.Request(doh_url, headers={
+            "Accept": "application/dns-json",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+        })
         resp = await asyncio.to_thread(urllib.request.urlopen, req)
         try:
             data = json.loads(await asyncio.to_thread(resp.read))
@@ -184,7 +187,7 @@ async def test_tls(domain: str) -> tuple[bool, Optional[str], int]:
         return False, f"connection_error:{e}", int((time.monotonic() - start) * 1000)
 
 async def test_http(domain: str) -> dict[str, Any]:
-    """Make HTTP GET and collect response info."""
+    """Make HTTP GET and collect response info. Any HTTP status = reachable."""
     start = time.monotonic()
     ctx = ssl.create_default_context()
     ctx.check_hostname = False
@@ -195,14 +198,17 @@ async def test_http(domain: str) -> dict[str, Any]:
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
             "Accept-Language": "en-US,en;q=0.5",
+            "Accept-Encoding": "identity",
         })
         resp = await asyncio.to_thread(urllib.request.urlopen, req, context=ctx)
         try:
             body_bytes = await asyncio.to_thread(resp.read)
             body = body_bytes.decode("utf-8", errors="replace")
-            title_match = __import__("re").search(r"<title[^>]*>([^<]+)</title>", body, re.IGNORECASE)
+            import re
+            title_match = re.search(r"<title[^>]*>([^<]+)</title>", body, re.IGNORECASE)
             return {
                 "status": resp.status,
+                "server": resp.headers.get("Server"),
                 "title": title_match.group(1).strip() if title_match else None,
                 "body_snippet": body[:500],
                 "latency_ms": int((time.monotonic() - start) * 1000),
@@ -210,7 +216,20 @@ async def test_http(domain: str) -> dict[str, Any]:
         finally:
             resp.close()
     except urllib.error.HTTPError as e:
-        return {"status": e.code, "latency_ms": int((time.monotonic() - start) * 1000)}
+        # Any HTTP response (including 403) means the host is reachable —
+        # 4xx/5xx are server responses, not network blocks.
+        body = ""
+        try:
+            body = e.read().decode("utf-8", errors="replace")[:500]
+        except Exception:
+            pass
+        return {
+            "status": e.code,
+            "server": e.headers.get("Server"),
+            "title": None,
+            "body_snippet": body,
+            "latency_ms": int((time.monotonic() - start) * 1000),
+        }
     except Exception as e:
         return {"error": str(e), "latency_ms": int((time.monotonic() - start) * 1000)}
 
@@ -302,6 +321,7 @@ async def probe_domain(domain: str, token: str, probe_id: str, asn: int) -> Opti
     # HTTP
     http_result = await test_http(domain)
     block_reason = detect_block_page(http_result.get("title"), http_result.get("body_snippet", ""))
+    reachable = "error" not in http_result  # HTTPError and successful responses both have no "error"
 
     return {
         "domain": domain, "probe_id": probe_id,
@@ -312,8 +332,10 @@ async def probe_domain(domain: str, token: str, probe_id: str, asn: int) -> Opti
         "doh_google": doh_google or None,
         "tcp_connected": True, "tls_succeeded": True,
         "http_status": http_result.get("status"),
+        "http_server": http_result.get("server"),
         "html_title": http_result.get("title"),
         "block_reason": block_reason,
+        "reachable": reachable,
         "tcp_latency_ms": tcp_latency,
         "tls_latency_ms": tls_latency,
         "http_latency_ms": http_result.get("latency_ms"),
@@ -370,19 +392,46 @@ async def main() -> None:
                 report = await probe_domain(domain, token, probe_id, asn)
                 if report is None:
                     continue
+
+                # Print HTTP-level detail for this domain
+                http_status = report.get("http_status")
+                server_hdr = report.get("http_server")
+                body_snip = (report.get("body_snippet") or "")[:150]
+                block_reason = report.get("block_reason")
+                reachable = report.get("reachable", False)
+
+                if not report.get("tcp_connected"):
+                    print(f"  ✗ {domain} — TCP failed (no connection to :443)")
+                elif not report.get("tls_succeeded"):
+                    print(f"  ✗ {domain} — TLS failed ({report.get('tls_error')})")
+                elif http_status is not None:
+                    status_label = "BLOCKED (block page)" if block_reason else "REACHABLE"
+                    server_str = f" (Server: {server_hdr})" if server_hdr else ""
+                    body_preview = f" — Body: {body_snip!r}" if body_snip else ""
+                    print(f"  ✓ {domain} — HTTP {http_status}{server_str} [{status_label}]{body_preview}")
+                else:
+                    err = report.get("error")
+                    print(f"  ✗ {domain} — {err}")
+
+                # Submit and print API result clearly
                 ok, err = await submit_report(args.api_url, token, report)
                 if ok:
                     consecutive_failures = 0
                     state["last_domain"] = domain
                     state["last_run"] = datetime.now().isoformat()
                     save_state(state)
-                    print(f"  ✓ {domain}")
+                    print(f"    → API: accepted (200)")
                 else:
                     consecutive_failures += 1
-                    print(f"  ✗ {domain}: {err}")
+                    # Try to parse API status from error message
+                    import re
+                    m = re.search(r"HTTP (\d+)", err or "")
+                    api_status = m.group(1) if m else "?"
+                    print(f"    → API: FAILED ({api_status}) — {err}")
             except Exception as e:
                 consecutive_failures += 1
                 print(f"  ✗ {domain}: {e}")
+                print(f"    → API: skipped (probe exception)")
 
         if consecutive_failures > 5:
             print(f"  ⚠ High failure rate ({consecutive_failures}). Backing off.")

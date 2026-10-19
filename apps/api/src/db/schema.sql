@@ -53,5 +53,4 @@ CREATE TABLE IF NOT EXISTS hourly_rollups (
   UNIQUE(domain_id, isp, hour_bucket)
 );
 
-CREATE INDEX idx_rollups ON hourly_rollups(domain_id, isp, hour_bucket);
 CREATE INDEX IF NOT EXISTS idx_rollups ON hourly_rollups(domain_id, isp, hour_bucket);

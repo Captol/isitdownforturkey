@@ -1,9 +1,9 @@
 # Project Progress: Is It Down For Türkiye?
 
-**Last updated**: 2026-10-18  
+**Last updated**: 2026-10-19  
 **Current milestone**: All milestones complete ✅  
-**Git status**: 12 commits on main (Vercel deploy + UX bug fixes)
-**Live URL**: https://web-p2ajkq5p9-sadasd21.vercel.app
+**Git status**: 13 commits on main (SSR fallback + probe import fix)
+**Live URL**: https://web-nu-gray-w31z4dr1qw.vercel.app
 
 ---
 

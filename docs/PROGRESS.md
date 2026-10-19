@@ -2,7 +2,7 @@
 
 **Last updated**: 2026-10-19  
 **Current milestone**: All milestones complete ✅  
-**Git status**: 14 commits on main (form fix + no-data fix + config cleanup)
+**Git status**: 15 commits on main (verdict UNKNOWN fix + probe ISP classification)
 **Live URL**: https://web-sadasd21.vercel.app
 
 ---

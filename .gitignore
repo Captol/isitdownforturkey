@@ -38,3 +38,6 @@ test-output.txt
 typecheck-results.txt
 
 .vercel
+test-results.txt
+.astro/
+screenshot-*.png

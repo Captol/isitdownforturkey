@@ -2,8 +2,8 @@ EXIT_CODE:0
 
 [1m[46m RUN [49m[22m [36mv3.2.7 [39m[90mC:/Users/İbrahim/Desktop/Deney[39m
 
- [32m✓[39m [30m[45m @isitdownforturkey/probe [49m[39m index.test.js[2m > [22msignReport[2m > [22mproduces a 64-char hex HMAC-SHA256 signature[32m 7[2mms[22m[39m
- [32m✓[39m [30m[45m @isitdownforturkey/probe [49m[39m index.test.js[2m > [22msignReport[2m > [22mdifferent reports produce different signatures[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[45m @isitdownforturkey/probe [49m[39m index.test.js[2m > [22msignReport[2m > [22mproduces a 64-char hex HMAC-SHA256 signature[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[45m @isitdownforturkey/probe [49m[39m index.test.js[2m > [22msignReport[2m > [22mdifferent reports produce different signatures[32m 2[2mms[22m[39m
  [32m✓[39m [30m[45m @isitdownforturkey/probe [49m[39m index.test.js[2m > [22msignReport[2m > [22mdifferent tokens produce different signatures for same report[32m 1[2mms[22m[39m
  [32m✓[39m [30m[45m @isitdownforturkey/probe [49m[39m index.test.js[2m > [22msignReport[2m > [22mvalidates correctly — re-derived signature matches[32m 1[2mms[22m[39m
  [32m✓[39m [30m[45m @isitdownforturkey/probe [49m[39m index.test.js[2m > [22msignReport[2m > [22mrejects tampered report — signature mismatch[32m 1[2mms[22m[39m
@@ -11,61 +11,66 @@ EXIT_CODE:0
  [32m✓[39m [30m[45m @isitdownforturkey/probe [49m[39m index.test.js[2m > [22mdetectBlockPage[2m > [22mdetects block page indicators in body[32m 1[2mms[22m[39m
  [32m✓[39m [30m[45m @isitdownforturkey/probe [49m[39m index.test.js[2m > [22mdetectBlockPage[2m > [22mreturns null for normal pages[32m 1[2mms[22m[39m
  [32m✓[39m [30m[43m @isitdownforturkey/api [49m[39m src/services/baseline.test.ts[2m > [22mrunBaselineCheck[2m > [22mreturns DNS records from both resolvers and HTTPS status[32m 8[2mms[22m[39m
- [32m✓[39m [30m[43m @isitdownforturkey/api [49m[39m src/services/baseline.test.ts[2m > [22mrunBaselineCheck[2m > [22mhandles resolver failures gracefully[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[43m @isitdownforturkey/api [49m[39m src/services/baseline.test.ts[2m > [22mrunBaselineCheck[2m > [22mhandles resolver failures gracefully[32m 1[2mms[22m[39m
  [32m✓[39m [30m[43m @isitdownforturkey/api [49m[39m src/services/baseline.test.ts[2m > [22mrunBaselineCheck[2m > [22mhandles HTTPS 404 as not reachable[32m 1[2mms[22m[39m
  [32m✓[39m [30m[43m @isitdownforturkey/api [49m[39m src/services/baseline.test.ts[2m > [22mtoGlobalBaseline[2m > [22mmaps BaselineResult to GlobalBaseline[32m 1[2mms[22m[39m
  [32m✓[39m [30m[43m @isitdownforturkey/api [49m[39m src/services/baseline.test.ts[2m > [22mD1 helpers (mocked)[2m > [22mupsertDomain inserts and returns id[32m 2[2mms[22m[39m
  [32m✓[39m [30m[43m @isitdownforturkey/api [49m[39m src/services/baseline.test.ts[2m > [22mD1 helpers (mocked)[2m > [22mstoreBaselineMeasurement inserts a row[32m 1[2mms[22m[39m
- [32m✓[39m [30m[43m @isitdownforturkey/api [49m[39m src/services/baseline.test.ts[2m > [22mbucketMeasurements[2m > [22mgroups rows into hourly buckets[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[43m @isitdownforturkey/api [49m[39m src/services/baseline.test.ts[2m > [22mbucketMeasurements[2m > [22mgroups rows into hourly buckets[32m 3[2mms[22m[39m
  [32m✓[39m [30m[43m @isitdownforturkey/api [49m[39m src/services/baseline.test.ts[2m > [22mbucketMeasurements[2m > [22mreturns empty array for empty input[32m 0[2mms[22m[39m
  [32m✓[39m [30m[43m @isitdownforturkey/api [49m[39m src/services/baseline.test.ts[2m > [22mbucketMeasurements[2m > [22mhandles rows with no latency[32m 1[2mms[22m[39m
- [32m✓[39m [30m[45m @isitdownforturkey/probe [49m[39m src/security.test.ts[2m > [22mverifyProbeSignature[2m > [22maccepts a valid signature[32m 6[2mms[22m[39m
+ [32m✓[39m [30m[45m @isitdownforturkey/probe [49m[39m src/security.test.ts[2m > [22mverifyProbeSignature[2m > [22maccepts a valid signature[32m 5[2mms[22m[39m
  [32m✓[39m [30m[45m @isitdownforturkey/probe [49m[39m src/security.test.ts[2m > [22mverifyProbeSignature[2m > [22mrejects a tampered signature[32m 1[2mms[22m[39m
  [32m✓[39m [30m[45m @isitdownforturkey/probe [49m[39m src/security.test.ts[2m > [22mverifyProbeSignature[2m > [22mrejects a report modified after signing[32m 1[2mms[22m[39m
  [32m✓[39m [30m[45m @isitdownforturkey/probe [49m[39m src/security.test.ts[2m > [22mverifyProbeSignature[2m > [22muses timing-safe comparison (no early return)[32m 1[2mms[22m[39m
- [32m✓[39m [30m[45m @isitdownforturkey/probe [49m[39m src/security.test.ts[2m > [22mRateLimiter[2m > [22mallows requests within the limit[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m @isitdownforturkey/probe [49m[39m src/security.test.ts[2m > [22mRateLimiter[2m > [22mallows requests within the limit[32m 1[2mms[22m[39m
  [32m✓[39m [30m[45m @isitdownforturkey/probe [49m[39m src/security.test.ts[2m > [22mRateLimiter[2m > [22mrejects requests exceeding the limit[32m 0[2mms[22m[39m
  [32m✓[39m [30m[45m @isitdownforturkey/probe [49m[39m src/security.test.ts[2m > [22mRateLimiter[2m > [22mtracks different keys independently[32m 0[2mms[22m[39m
  [32m✓[39m [30m[45m @isitdownforturkey/probe [49m[39m src/security.test.ts[2m > [22mRateLimiter[2m > [22mprunes old entries after window expires[32m 11[2mms[22m[39m
+ [32m✓[39m [30m[43m @isitdownforturkey/api [49m[39m src/services/export.test.ts[2m > [22mrenderRssFeed[2m > [22mproduces valid RSS with entries[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[43m @isitdownforturkey/api [49m[39m src/services/export.test.ts[2m > [22mrenderRssFeed[2m > [22mXML-escapes dangerous characters[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[43m @isitdownforturkey/api [49m[39m src/services/export.test.ts[2m > [22mrenderRssFeed[2m > [22mreturns empty feed when no entries[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[43m @isitdownforturkey/api [49m[39m src/services/export.test.ts[2m > [22mfetchBlockedFeed (mocked)[2m > [22mreturns recent blocked measurements[32m 6[2mms[22m[39m
+ [32m✓[39m [30m[43m @isitdownforturkey/api [49m[39m src/services/export.test.ts[2m > [22mfetchDailyExport (mocked)[2m > [22mreturns measurements from last 24h[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[42m @isitdownforturkey/shared [49m[39m src/all.test.ts[2m > [22mnormalizeDomain[2m > [22mstrips https://, http://, ports, www., trailing dots[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[42m @isitdownforturkey/shared [49m[39m src/all.test.ts[2m > [22mnormalizeDomain[2m > [22mlowercases input[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[42m @isitdownforturkey/shared [49m[39m src/all.test.ts[2m > [22mvalidateDomain SSRF guard[2m > [22mallows public domains[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[42m @isitdownforturkey/shared [49m[39m src/all.test.ts[2m > [22mvalidateDomain SSRF guard[2m > [22mrejects loopback and localhost[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[42m @isitdownforturkey/shared [49m[39m src/all.test.ts[2m > [22mvalidateDomain SSRF guard[2m > [22mrejects RFC 1918 private IPv4 ranges[32m 0[2mms[22m[39m
+ [32m✓[39m [30m[42m @isitdownforturkey/shared [49m[39m src/all.test.ts[2m > [22mvalidateDomain SSRF guard[2m > [22mrejects cloud metadata IPs[32m 0[2mms[22m[39m
+ [32m✓[39m [30m[42m @isitdownforturkey/shared [49m[39m src/all.test.ts[2m > [22mvalidateDomain SSRF guard[2m > [22mrejects invalid/syntax-bad domains[32m 0[2mms[22m[39m
+ [32m✓[39m [30m[42m @isitdownforturkey/shared [49m[39m src/all.test.ts[2m > [22mdetectDNSPoisoning[2m > [22mdetects sinkhole IPs in system DNS[32m 0[2mms[22m[39m
+ [32m✓[39m [30m[42m @isitdownforturkey/shared [49m[39m src/all.test.ts[2m > [22mdetectDNSPoisoning[2m > [22mreturns null when DNS matches[32m 0[2mms[22m[39m
+ [32m✓[39m [30m[42m @isitdownforturkey/shared [49m[39m src/all.test.ts[2m > [22mdetectDNSPoisoning[2m > [22mreturns null with no data[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[42m @isitdownforturkey/shared [49m[39m src/all.test.ts[2m > [22mdetectBlockPage[2m > [22mdetects BTK title pattern[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[42m @isitdownforturkey/shared [49m[39m src/all.test.ts[2m > [22mdetectBlockPage[2m > [22mreturns null for normal titles[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[42m @isitdownforturkey/shared [49m[39m src/all.test.ts[2m > [22mbuildCheckResponse[2m > [22mreturns UP when all probes agree[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[42m @isitdownforturkey/shared [49m[39m src/all.test.ts[2m > [22mbuildCheckResponse[2m > [22mreturns DOWN_GLOBALLY when global baseline is down[32m 0[2mms[22m[39m
+ [32m✓[39m [30m[42m @isitdownforturkey/shared [49m[39m src/all.test.ts[2m > [22mbuildCheckResponse[2m > [22mreturns UNKNOWN with no probes[32m 0[2mms[22m[39m
+ [32m✓[39m [30m[43m @isitdownforturkey/api [49m[39m src/services/badge.test.ts[2m > [22mgenerateBadge[2m > [22mproduces valid SVG markup[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[43m @isitdownforturkey/api [49m[39m src/services/badge.test.ts[2m > [22mgenerateBadge[2m > [22muses correct colors per verdict[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[43m @isitdownforturkey/api [49m[39m src/services/badge.test.ts[2m > [22mgenerateBadge[2m > [22mtruncates long domains[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[43m @isitdownforturkey/api [49m[39m src/services/badge.test.ts[2m > [22mgenerateBadge[2m > [22mescapes XML special chars in domain[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[43m @isitdownforturkey/api [49m[39m src/services/badge.test.ts[2m > [22mgenerateBadge[2m > [22mallows custom label[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[43m @isitdownforturkey/api [49m[39m src/services/badge.test.ts[2m > [22mverdictToBadge[2m > [22mmaps CHECK_RESPONSE verdicts to badge verdicts[32m 1[2mms[22m[39m
  [32m✓[39m [30m[42m @isitdownforturkey/shared [49m[39m src/fingerprints.test.ts[2m > [22mdetectDNSPoisoning[2m > [22mdetects sinkhole IPs in system DNS[32m 3[2mms[22m[39m
  [32m✓[39m [30m[42m @isitdownforturkey/shared [49m[39m src/fingerprints.test.ts[2m > [22mdetectDNSPoisoning[2m > [22mreturns null when DNS matches[32m 1[2mms[22m[39m
  [32m✓[39m [30m[42m @isitdownforturkey/shared [49m[39m src/fingerprints.test.ts[2m > [22mdetectDNSPoisoning[2m > [22mreturns null with no data[32m 0[2mms[22m[39m
  [32m✓[39m [30m[42m @isitdownforturkey/shared [49m[39m src/fingerprints.test.ts[2m > [22mdetectBlockPage[2m > [22mdetects BTK title pattern[32m 1[2mms[22m[39m
  [32m✓[39m [30m[42m @isitdownforturkey/shared [49m[39m src/fingerprints.test.ts[2m > [22mdetectBlockPage[2m > [22mreturns null for normal titles[32m 1[2mms[22m[39m
- [32m✓[39m [30m[43m @isitdownforturkey/api [49m[39m src/services/badge.test.ts[2m > [22mgenerateBadge[2m > [22mproduces valid SVG markup[32m 3[2mms[22m[39m
- [32m✓[39m [30m[43m @isitdownforturkey/api [49m[39m src/services/badge.test.ts[2m > [22mgenerateBadge[2m > [22muses correct colors per verdict[32m 1[2mms[22m[39m
- [32m✓[39m [30m[43m @isitdownforturkey/api [49m[39m src/services/badge.test.ts[2m > [22mgenerateBadge[2m > [22mtruncates long domains[32m 1[2mms[22m[39m
- [32m✓[39m [30m[43m @isitdownforturkey/api [49m[39m src/services/badge.test.ts[2m > [22mgenerateBadge[2m > [22mescapes XML special chars in domain[32m 0[2mms[22m[39m
- [32m✓[39m [30m[43m @isitdownforturkey/api [49m[39m src/services/badge.test.ts[2m > [22mgenerateBadge[2m > [22mallows custom label[32m 0[2mms[22m[39m
- [32m✓[39m [30m[43m @isitdownforturkey/api [49m[39m src/services/badge.test.ts[2m > [22mverdictToBadge[2m > [22mmaps CHECK_RESPONSE verdicts to badge verdicts[32m 1[2mms[22m[39m
- [32m✓[39m [30m[42m @isitdownforturkey/shared [49m[39m src/all.test.ts[2m > [22mnormalizeDomain[2m > [22mstrips https://, http://, ports, www., trailing dots[32m 4[2mms[22m[39m
- [32m✓[39m [30m[42m @isitdownforturkey/shared [49m[39m src/all.test.ts[2m > [22mnormalizeDomain[2m > [22mlowercases input[32m 0[2mms[22m[39m
- [32m✓[39m [30m[42m @isitdownforturkey/shared [49m[39m src/all.test.ts[2m > [22mvalidateDomain SSRF guard[2m > [22mallows public domains[32m 2[2mms[22m[39m
- [32m✓[39m [30m[42m @isitdownforturkey/shared [49m[39m src/all.test.ts[2m > [22mvalidateDomain SSRF guard[2m > [22mrejects loopback and localhost[32m 3[2mms[22m[39m
- [32m✓[39m [30m[42m @isitdownforturkey/shared [49m[39m src/all.test.ts[2m > [22mvalidateDomain SSRF guard[2m > [22mrejects RFC 1918 private IPv4 ranges[32m 1[2mms[22m[39m
- [32m✓[39m [30m[42m @isitdownforturkey/shared [49m[39m src/all.test.ts[2m > [22mvalidateDomain SSRF guard[2m > [22mrejects cloud metadata IPs[32m 1[2mms[22m[39m
- [32m✓[39m [30m[42m @isitdownforturkey/shared [49m[39m src/all.test.ts[2m > [22mvalidateDomain SSRF guard[2m > [22mrejects invalid/syntax-bad domains[32m 2[2mms[22m[39m
- [32m✓[39m [30m[42m @isitdownforturkey/shared [49m[39m src/all.test.ts[2m > [22mdetectDNSPoisoning[2m > [22mdetects sinkhole IPs in system DNS[32m 1[2mms[22m[39m
- [32m✓[39m [30m[42m @isitdownforturkey/shared [49m[39m src/all.test.ts[2m > [22mdetectDNSPoisoning[2m > [22mreturns null when DNS matches[32m 1[2mms[22m[39m
- [32m✓[39m [30m[42m @isitdownforturkey/shared [49m[39m src/all.test.ts[2m > [22mdetectDNSPoisoning[2m > [22mreturns null with no data[32m 1[2mms[22m[39m
- [32m✓[39m [30m[42m @isitdownforturkey/shared [49m[39m src/all.test.ts[2m > [22mdetectBlockPage[2m > [22mdetects BTK title pattern[32m 1[2mms[22m[39m
- [32m✓[39m [30m[42m @isitdownforturkey/shared [49m[39m src/all.test.ts[2m > [22mdetectBlockPage[2m > [22mreturns null for normal titles[32m 1[2mms[22m[39m
- [32m✓[39m [30m[42m @isitdownforturkey/shared [49m[39m src/all.test.ts[2m > [22mbuildCheckResponse[2m > [22mreturns UP when all probes agree[32m 2[2mms[22m[39m
- [32m✓[39m [30m[42m @isitdownforturkey/shared [49m[39m src/all.test.ts[2m > [22mbuildCheckResponse[2m > [22mreturns DOWN_GLOBALLY when global baseline is down[32m 1[2mms[22m[39m
- [32m✓[39m [30m[42m @isitdownforturkey/shared [49m[39m src/all.test.ts[2m > [22mbuildCheckResponse[2m > [22mreturns UNKNOWN with no probes[32m 0[2mms[22m[39m
- [32m✓[39m [30m[42m @isitdownforturkey/shared [49m[39m src/aggregation.test.ts[2m > [22mbuildCheckResponse[2m > [22mreturns UP when all probes agree[32m 3[2mms[22m[39m
- [32m✓[39m [30m[42m @isitdownforturkey/shared [49m[39m src/aggregation.test.ts[2m > [22mbuildCheckResponse[2m > [22mreturns DOWN_GLOBALLY when global baseline is down[32m 0[2mms[22m[39m
- [32m✓[39m [30m[42m @isitdownforturkey/shared [49m[39m src/aggregation.test.ts[2m > [22mbuildCheckResponse[2m > [22mreturns UNKNOWN with no probes[32m 0[2mms[22m[39m
- [32m✓[39m [30m[42m @isitdownforturkey/shared [49m[39m src/ssrf.test.ts[2m > [22mnormalizeDomain[2m > [22mstrips https://, http://, ports, www., trailing dots[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[42m @isitdownforturkey/shared [49m[39m src/ssrf.test.ts[2m > [22mnormalizeDomain[2m > [22mstrips https://, http://, ports, www., trailing dots[32m 4[2mms[22m[39m
  [32m✓[39m [30m[42m @isitdownforturkey/shared [49m[39m src/ssrf.test.ts[2m > [22mnormalizeDomain[2m > [22mlowercases input[32m 0[2mms[22m[39m
- [32m✓[39m [30m[42m @isitdownforturkey/shared [49m[39m src/ssrf.test.ts[2m > [22mvalidateDomain SSRF guard[2m > [22mallows public domains[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[42m @isitdownforturkey/shared [49m[39m src/ssrf.test.ts[2m > [22mvalidateDomain SSRF guard[2m > [22mallows public domains[32m 2[2mms[22m[39m
  [32m✓[39m [30m[42m @isitdownforturkey/shared [49m[39m src/ssrf.test.ts[2m > [22mvalidateDomain SSRF guard[2m > [22mrejects loopback and localhost[32m 1[2mms[22m[39m
- [32m✓[39m [30m[42m @isitdownforturkey/shared [49m[39m src/ssrf.test.ts[2m > [22mvalidateDomain SSRF guard[2m > [22mrejects RFC 1918 private IPv4 ranges[32m 0[2mms[22m[39m
+ [32m✓[39m [30m[42m @isitdownforturkey/shared [49m[39m src/ssrf.test.ts[2m > [22mvalidateDomain SSRF guard[2m > [22mrejects RFC 1918 private IPv4 ranges[32m 1[2mms[22m[39m
  [32m✓[39m [30m[42m @isitdownforturkey/shared [49m[39m src/ssrf.test.ts[2m > [22mvalidateDomain SSRF guard[2m > [22mrejects cloud metadata IPs[32m 0[2mms[22m[39m
  [32m✓[39m [30m[42m @isitdownforturkey/shared [49m[39m src/ssrf.test.ts[2m > [22mvalidateDomain SSRF guard[2m > [22mrejects invalid/syntax-bad domains[32m 0[2mms[22m[39m
+ [32m✓[39m [30m[42m @isitdownforturkey/shared [49m[39m src/aggregation.test.ts[2m > [22mbuildCheckResponse[2m > [22mreturns UP when all probes agree[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[42m @isitdownforturkey/shared [49m[39m src/aggregation.test.ts[2m > [22mbuildCheckResponse[2m > [22mreturns DOWN_GLOBALLY when global baseline is down[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[42m @isitdownforturkey/shared [49m[39m src/aggregation.test.ts[2m > [22mbuildCheckResponse[2m > [22mreturns UNKNOWN with no probes[32m 0[2mms[22m[39m
 
-[2m Test Files [22m [1m[32m8 passed[39m[22m[90m (8)[39m
-[2m      Tests [22m [1m[32m61 passed[39m[22m[90m (61)[39m
-[2m   Start at [22m 19:22:30
-[2m   Duration [22m 2.46s[2m (transform 542ms, setup 0ms, collect 880ms, tests 126ms, environment 3ms, prepare 2.28s)[22m
+[2m Test Files [22m [1m[32m9 passed[39m[22m[90m (9)[39m
+[2m      Tests [22m [1m[32m66 passed[39m[22m[90m (66)[39m
+[2m   Start at [22m 22:48:58
+[2m   Duration [22m 3.21s[2m (transform 698ms, setup 0ms, collect 1.23s, tests 129ms, environment 11ms, prepare 3.18s)[22m
 

@@ -60,8 +60,9 @@ jobs:
           cache: npm
       - run: npm ci
       - name: Apply D1 schema
-        run: |
-          wrangler d1 execute is-it-down-tr --file=apps/api/src/db/schema.sql --remote
+        run: npx wrangler d1 execute is-it-down-tr --file=src/db/schema.sql --remote
+        working-directory: apps/api
+        
         env:
           CLOUDFLARE_D1_DATABASE_ID: ${{ secrets.CLOUDFLARE_D1_DATABASE_ID }}
       - name: Deploy API Worker

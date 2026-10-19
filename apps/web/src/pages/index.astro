@@ -7,6 +7,12 @@ import { t, detectLang } from '../i18n/strings';
 
 const lang = detectLang(Astro.request.headers, Astro.request.url);
 
+// Server-side redirect when form submitted via standard GET
+const searchDomain = Astro.url.searchParams.get('domain')?.trim();
+if (searchDomain) {
+  return Astro.redirect(`/d/${encodeURIComponent(searchDomain)}`);
+}
+
 interface WatchlistService { domain: string; category: string; }
 let watchlist: WatchlistService[] = [];
 try {
@@ -22,14 +28,7 @@ try {
   <section class="hero fade-in">
     <h1>{t(lang, 'heroTitle')}</h1>
     <p>{t(lang, 'heroDesc')}</p>
-    <form class="search-form" role="search" onsubmit={(e) => {
-      const input = (e.currentTarget.elements.namedItem('domain') as HTMLInputElement | null);
-      const domain = input?.value?.trim();
-      if (domain) {
-        e.preventDefault();
-        window.location.href = `/d/${encodeURIComponent(domain)}`;
-      }
-    }}>
+    <form class="search-form" role="search" action="/" method="GET">
       <label for="domain-input" class="sr-only">{t(lang, 'searchLabel')}</label>
       <input
         type="text"
@@ -42,6 +41,17 @@ try {
       />
       <button type="submit">{t(lang, 'searchButton')}</button>
     </form>
+    <script>
+      const form = document.querySelector('.search-form') as HTMLFormElement | null;
+      form?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const input = form.querySelector('input[name="domain"]') as HTMLInputElement | null;
+        const domain = input?.value?.trim();
+        if (domain) {
+          window.location.href = `/d/${encodeURIComponent(domain)}`;
+        }
+      });
+    </script>
     <p id="search-hint" class="sr-only">
       {lang === 'tr' ? 'Örnek: discord.com, github.com, steamcommunity.com' : 'Examples: discord.com, github.com, steamcommunity.com'}
     </p>

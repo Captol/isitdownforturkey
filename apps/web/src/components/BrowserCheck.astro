@@ -25,7 +25,7 @@ const { domain, apiBase, lang } = Astro.props;
     class="browser-check-btn"
     id="browser-check-btn"
     onclick={() => {
-      import('/src/lib/browser-probe.ts').then(async ({ runBrowserProbe }) => {
+      import('../lib/browser-probe').then(async ({ runBrowserProbe }) => {
         const btn = document.getElementById('browser-check-btn') as HTMLButtonElement | null;
         if (btn) btn.disabled = true;
         const result = await runBrowserProbe(domain, apiBase);

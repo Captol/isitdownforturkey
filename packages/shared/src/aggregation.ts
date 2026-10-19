@@ -159,6 +159,15 @@ export function buildCheckResponse({
     }
   }
 
+  // Fallback: use global baseline when no probe/browser data is available yet
+  if (overallVerdict === 'UNKNOWN' && globalBaseline !== null) {
+    if (globalBaseline.httpsReachable) {
+      overallVerdict = 'UP';
+      overallConfidence = 'low';
+    }
+    // globallyDown is already handled below
+  }
+
   // Override with global baseline
   if (globallyDown) {
     overallVerdict = 'DOWN_GLOBALLY';

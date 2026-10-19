@@ -26,8 +26,9 @@ describe('buildCheckResponse', () => {
     expect(r.verdict).toBe('DOWN_GLOBALLY');
   });
 
-  it('returns UNKNOWN with no probes', () => {
+  it('returns UP with global baseline when no probes exist', () => {
     const r = buildCheckResponse({ domain: 'no-data.example', globalBaseline: baseline, ispProbes: {} });
-    expect(r.verdict).toBe('UNKNOWN');
+    expect(r.verdict).toBe('UP');
+    expect(r.confidence).toBe('low');
   });
 });

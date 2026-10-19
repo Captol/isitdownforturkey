@@ -55,11 +55,74 @@ app.get('/api/check', async (c) => {
     console.error('D1 write failed:', err);
   }
 
-  // Return response with baseline + empty ISP breakdown (probes layer empty for now)
+  // Query recent probe and browser measurements from D1
+  const since = new Date(Date.now() - 6 * 3600_000).toISOString();
+  let ispProbes: Record<string, Array<{ domain: string; isp: string; asn: number; tcpConnected: boolean; tlsSucceeded: boolean; httpStatus?: number; blockReason?: string; latencyMs: number; timestamp: string }>> = {};
+  let browserProbe: { domain: string; timestamp: string; tcpConnected: boolean; tlsSucceeded: boolean; httpStatus?: number; latencyMs: number; asn?: number; isp?: string } | null = null;
+  try {
+    const probeRows = await db.prepare(
+      `SELECT m.isp, m.asn, m.status, m.block_reason, m.latency_ms, m.payload
+       FROM measurements m
+       JOIN domains d ON d.id = m.domain_id
+       WHERE d.domain = ? AND m.source = 'probe' AND m.created_at >= ?
+       ORDER BY m.created_at DESC LIMIT 200`
+    ).bind(normalized, since).all();
+
+    for (const row of (probeRows.results ?? [])) {
+      const payload = typeof row.payload === 'string' ? JSON.parse(row.payload) : row.payload;
+      const isp = row.isp as string;
+      if (!ispProbes[isp]) ispProbes[isp] = [];
+      ispProbes[isp].push({
+        domain: normalized,
+        isp,
+        asn: row.asn ?? 0,
+        tcpConnected: payload?.tcpConnected ?? true,
+        tlsSucceeded: payload?.tlsSucceeded ?? true,
+        httpStatus: payload?.httpStatus,
+        blockReason: row.block_reason as string | undefined,
+        latencyMs: row.latency_ms ?? 0,
+        timestamp: payload?.timestamp ?? new Date().toISOString(),
+      });
+    }
+
+    const browserRow = await db.prepare(
+      `SELECT m.asn, m.isp, m.latency_ms, m.payload
+       FROM measurements m
+       JOIN domains d ON d.id = m.domain_id
+       WHERE d.domain = ? AND m.source = 'browser' AND m.created_at >= ?
+       ORDER BY m.created_at DESC LIMIT 1`
+    ).bind(normalized, since).first();
+
+    if (browserRow) {
+      const payload = typeof browserRow.payload === 'string' ? JSON.parse(browserRow.payload) : browserRow.payload;
+      browserProbe = {
+        domain: normalized,
+        timestamp: payload?.timestamp ?? new Date().toISOString(),
+        tcpConnected: payload?.tcpConnected ?? false,
+        tlsSucceeded: payload?.tlsSucceeded ?? false,
+        httpStatus: payload?.httpStatus,
+        latencyMs: browserRow.latency_ms ?? 0,
+        asn: browserRow.asn ?? undefined,
+        isp: browserRow.isp as string | undefined,
+      };
+    }
+  } catch (err) {
+    console.error('D1 probe read failed:', err);
+  }
+
+  // Persist baseline and return response with real probe data
+  try {
+    const domainId = await upsertDomain(db, normalized);
+    await storeBaselineMeasurement(db, domainId, baselineResult);
+  } catch (err) {
+    console.error('D1 write failed:', err);
+  }
+
   const response = buildCheckResponse({
     domain: normalized,
     globalBaseline,
-    ispProbes: {},
+    ispProbes,
+    browserProbe,
   });
 
   return c.json(response);

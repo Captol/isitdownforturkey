@@ -13,8 +13,9 @@ describe('verifyProbeSignature', () => {
 
   it('accepts a valid signature', () => {
     const report = { domain: 'example.com', asn: 9121, timestamp: '2026-01-01T00:00:00Z' };
+    // Sort keys to match Python json.dumps(sort_keys=True) — key order affects HMAC
     const sig = createHmac('sha256', token)
-      .update(JSON.stringify(report))
+      .update(JSON.stringify(report, Object.keys(report).sort()))
       .digest('hex');
     expect(verifyProbeSignature(token, report, sig)).toBe(true);
   });
@@ -27,8 +28,9 @@ describe('verifyProbeSignature', () => {
 
   it('rejects a report modified after signing', () => {
     const report = { domain: 'honest.com', asn: 9121 };
+    // Sort keys to match Python json.dumps(sort_keys=True)
     const sig = createHmac('sha256', token)
-      .update(JSON.stringify(report))
+      .update(JSON.stringify(report, Object.keys(report).sort()))
       .digest('hex');
     // Sign with original, verify with tampered
     expect(verifyProbeSignature(token, { ...report, domain: 'liar.com' }, sig)).toBe(false);
@@ -36,8 +38,9 @@ describe('verifyProbeSignature', () => {
 
   it('uses timing-safe comparison (no early return)', () => {
     const report = { domain: 'example.com' };
+    // Sort keys to match Python json.dumps(sort_keys=True)
     const sig = createHmac('sha256', token)
-      .update(JSON.stringify(report))
+      .update(JSON.stringify(report, Object.keys(report).sort()))
       .digest('hex');
     // Both should take roughly same time — just verify correctness
     expect(verifyProbeSignature(token, report, sig)).toBe(true);

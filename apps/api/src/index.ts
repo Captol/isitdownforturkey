@@ -137,7 +137,16 @@ app.post('/api/probes/report', async (c) => {
   if (!parsed.success) return c.json({ error: parsed.error.message }, 400);
 
   const { signature, ...report } = parsed.data;
-  const token = c.env.PROBE_HMAC_SECRET;
+  const db = c.env.DB;
+
+  // Look up probe's per-probe signing token from D1
+  const probeNode = await db.prepare(
+    `SELECT token FROM probe_nodes WHERE probe_id = ?`
+  ).bind(report.probeId).first();
+  if (!probeNode) {
+    return c.json({ error: 'unknown probe' }, 401);
+  }
+  const token = (probeNode as { token: string }).token;
 
   // Verify HMAC signature
   if (!verifyProbeSignature(token, report, signature)) {
@@ -156,7 +165,6 @@ app.post('/api/probes/report', async (c) => {
   }
 
   // Store in D1
-  const db = c.env.DB;
   try {
     const domainId = await upsertDomain(db, report.domain);
     await storeProbeMeasurement(db, domainId, report.probeId, report.asn, report.isp, {
@@ -205,8 +213,8 @@ app.post('/api/probes/register', async (c) => {
       .update(tokenHex)
       .digest('hex');
     await db.prepare(
-      `INSERT INTO probe_nodes (probe_id, hmac_key_hash, asn, isp, created_at) VALUES (?, ?, ?, ?, datetime('now'))`
-    ).bind(probeId, hmacKeyHash, asn, null).run();
+      `INSERT INTO probe_nodes (probe_id, hmac_key_hash, token, asn, isp, created_at) VALUES (?, ?, ?, ?, ?, datetime('now'))`
+    ).bind(probeId, hmacKeyHash, tokenHex, asn, null).run();
   } catch (err) {
     console.error('Probe registration D1 error:', err);
     // Non-fatal: token still works even if D1 write fails (idempotent by design)

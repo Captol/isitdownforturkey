@@ -1,8 +1,8 @@
 # Project Progress: Is It Down For Türkiye?
 
-**Last updated**: 2026-10-19  
+**Last updated**: 2026-10-20  
 **Current milestone**: All milestones complete ✅  
-**Git status**: 15 commits on main (verdict UNKNOWN fix + probe ISP classification)
+**Git status**: 46 commits on main (probe.py bug fixes — ASN, SSL crash, HTTP reachability)
 **Live URL**: https://web-sadasd21.vercel.app
 
 ---

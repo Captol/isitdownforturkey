@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS probe_nodes (
   id              INTEGER PRIMARY KEY AUTOINCREMENT,
   probe_id        TEXT NOT NULL UNIQUE,
   hmac_key_hash   TEXT NOT NULL,
+  token           TEXT NOT NULL,
   asn             INTEGER,
   isp             TEXT,
   reputation      REAL NOT NULL DEFAULT 1.0,

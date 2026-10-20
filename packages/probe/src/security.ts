@@ -20,8 +20,9 @@ export function verifyProbeSignature(
 ): boolean {
   // Remove signature from report before signing for comparison
   const { signature: _sig, ...payload } = report;
+  // Sort keys to match Python json.dumps(sort_keys=True) — key order affects HMAC
   const expected = createHmac('sha256', token)
-    .update(JSON.stringify(payload))
+    .update(JSON.stringify(payload, Object.keys(payload).sort()))
     .digest('hex');
   const expectedBuf = Buffer.from(expected, 'hex');
   const sigBuf = Buffer.from(signature, 'hex');

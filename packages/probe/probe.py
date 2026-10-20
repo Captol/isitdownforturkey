@@ -61,6 +61,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--interval", type=int, default=DEFAULT_INTERVAL, help="Polling interval (seconds)")
     parser.add_argument("--domains", nargs="*", default=[], help="Domains to probe")
     parser.add_argument("--asn", type=int, default=0, help="Override ASN (from register response)")
+    parser.add_argument("--probe-id", default="", help="Probe ID from /api/probes/register (required for first run)")
     return parser.parse_args()
 
 # ─── Token & State ───────────────────────────────────────────────────────────
@@ -220,7 +221,7 @@ async def test_http(domain: str) -> dict[str, Any]:
         # 4xx/5xx are server responses, not network blocks.
         body = ""
         try:
-            body = e.read().decode("utf-8", errors="replace")[:500]
+            body = e.fp.read().decode("utf-8", errors="replace")[:500]
         except Exception:
             pass
         return {
@@ -256,8 +257,10 @@ def detect_block_page(title: Optional[str] = None, body: Optional[str] = None) -
 # ─── Report Signing ──────────────────────────────────────────────────────────
 
 def sign_report(token: str, report: dict[str, Any]) -> str:
-    """HMAC-SHA256 sign a report payload."""
-    payload = json.dumps(report, sort_keys=True)
+    """HMAC-SHA256 sign a report payload.
+    Uses compact separators (no spaces) to match Node.js JSON.stringify.
+    """
+    payload = json.dumps(report, sort_keys=True, separators=(',', ':'))
     return hmac.new(token.encode(), payload.encode(), hashlib.sha256).hexdigest()
 
 # ─── Main Probe Logic ────────────────────────────────────────────────────────
@@ -292,30 +295,30 @@ async def probe_domain(domain: str, token: str, probe_id: str, asn: int) -> Opti
     tcp_connected, tcp_latency = await test_tcp_connect(domain)
     if not tcp_connected:
         return {
-            "domain": domain, "probe_id": probe_id,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "domain": domain, "probeId": probe_id,
+            "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
             "asn": asn, "isp": isp,
-            "system_dns": system_dns or None,
-            "doh_cloudflare": doh_cf or None,
-            "doh_google": doh_google or None,
-            "tcp_connected": False, "tls_succeeded": False,
-            "tcp_latency_ms": tcp_latency,
+            "systemDns": system_dns or None,
+            "dohCloudflare": doh_cf or None,
+            "dohGoogle": doh_google or None,
+            "tcpConnected": False, "tlsSucceeded": False,
+            "tcpLatencyMs": tcp_latency,
         }
 
     # TLS
     tls_ok, tls_error, tls_latency = await test_tls(domain)
     if not tls_ok:
         return {
-            "domain": domain, "probe_id": probe_id,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "domain": domain, "probeId": probe_id,
+            "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
             "asn": asn, "isp": isp,
-            "system_dns": system_dns or None,
-            "doh_cloudflare": doh_cf or None,
-            "doh_google": doh_google or None,
-            "tcp_connected": True, "tls_succeeded": False,
-            "tcp_latency_ms": tcp_latency,
-            "tls_latency_ms": tls_latency,
-            "block_reason": "sni_reset",
+            "systemDns": system_dns or None,
+            "dohCloudflare": doh_cf or None,
+            "dohGoogle": doh_google or None,
+            "tcpConnected": True, "tlsSucceeded": False,
+            "tcpLatencyMs": tcp_latency,
+            "tlsLatencyMs": tls_latency,
+            "blockReason": "sni_reset",
         }
 
     # HTTP
@@ -324,32 +327,42 @@ async def probe_domain(domain: str, token: str, probe_id: str, asn: int) -> Opti
     reachable = "error" not in http_result  # HTTPError and successful responses both have no "error"
 
     return {
-        "domain": domain, "probe_id": probe_id,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "domain": domain, "probeId": probe_id,
+        "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "asn": asn, "isp": isp,
-        "system_dns": system_dns or None,
-        "doh_cloudflare": doh_cf or None,
-        "doh_google": doh_google or None,
-        "tcp_connected": True, "tls_succeeded": True,
-        "http_status": http_result.get("status"),
-        "http_server": http_result.get("server"),
-        "html_title": http_result.get("title"),
-        "block_reason": block_reason,
-        "reachable": reachable,
-        "tcp_latency_ms": tcp_latency,
-        "tls_latency_ms": tls_latency,
-        "http_latency_ms": http_result.get("latency_ms"),
+        "systemDns": system_dns or None,
+        "dohCloudflare": doh_cf or None,
+        "dohGoogle": doh_google or None,
+        "tcpConnected": True, "tlsSucceeded": True,
+        "httpStatus": http_result.get("status"),
+        "htmlTitle": http_result.get("title"),
+        "blockReason": block_reason,
+        "tcpLatencyMs": tcp_latency,
+        "tlsLatencyMs": tls_latency,
+        "httpLatencyMs": http_result.get("latency_ms"),
     }
+
+def _strip_none(report: dict[str, Any]) -> dict[str, Any]:
+    """Remove None values so Zod .optional() fields aren't sent as null."""
+    return {k: v for k, v in report.items() if v is not None}
 
 async def submit_report(api_url: str, token: str, report: dict[str, Any]) -> tuple[bool, Optional[str]]:
     """Submit signed report to API."""
-    signed = {**report, "signature": sign_report(token, report)}
+    report = _strip_none(report)
+    sig = sign_report(token, report)
+    # DEBUG: print what we're signing
+    print(f"    [DEBUG] signed payload: {json.dumps(report, sort_keys=True, separators=(',', ':'))[:200]}...")
+    print(f"    [DEBUG] signature: {sig[:32]}...")
+    signed = {**report, "signature": sig}
     payload = json.dumps(signed).encode()
     try:
         req = urllib.request.Request(
             f"{api_url}/api/probes/report",
             data=payload,
-            headers={"Content-Type": "application/json"},
+            headers={
+                "Content-Type": "application/json",
+                "User-Agent": "isitdownforturkey-probe/1.0",
+            },
             method="POST",
         )
         resp = await asyncio.to_thread(urllib.request.urlopen, req)
@@ -361,7 +374,11 @@ async def submit_report(api_url: str, token: str, report: dict[str, Any]) -> tup
         finally:
             resp.close()
     except urllib.error.HTTPError as e:
-        return False, f"HTTP {e.code}: {e.reason}"
+        try:
+            err_body = await asyncio.to_thread(e.fp.read)
+            return False, f"HTTP {e.code}: {err_body.decode(errors='replace')}"
+        except Exception:
+            return False, f"HTTP {e.code}: {e.reason}"
     except Exception as e:
         return False, str(e)
 
@@ -381,7 +398,12 @@ async def main() -> None:
 
     domains = args.domains or DEFAULT_DOMAINS
     state = load_state()
-    probe_id = state["probe_id"]
+    # Use CLI override, then saved state, then generate new
+    probe_id = args.probe_id or state.get("probe_id", __import__("uuid").uuid4().hex)
+    # Persist probe_id if it was freshly generated
+    if "probe_id" not in state:
+        state["probe_id"] = probe_id
+        save_state(state)
     consecutive_failures = state.get("consecutive_failures", 0)
 
     async def run_cycle() -> None:
@@ -394,31 +416,26 @@ async def main() -> None:
                     continue
 
                 # Print HTTP-level detail for this domain
-                http_status = report.get("http_status")
-                server_hdr = report.get("http_server")
-                body_snip = (report.get("body_snippet") or "")[:150]
-                block_reason = report.get("block_reason")
-                reachable = report.get("reachable", False)
+                http_status = report.get("httpStatus")
+                block_reason = report.get("blockReason")
+                reachable = report.get("tcpConnected")
 
-                if not report.get("tcp_connected"):
+                if not reachable:
                     print(f"  ✗ {domain} — TCP failed (no connection to :443)")
-                elif not report.get("tls_succeeded"):
-                    print(f"  ✗ {domain} — TLS failed ({report.get('tls_error')})")
+                elif not report.get("tlsSucceeded"):
+                    print(f"  ✗ {domain} — TLS failed")
                 elif http_status is not None:
                     status_label = "BLOCKED (block page)" if block_reason else "REACHABLE"
-                    server_str = f" (Server: {server_hdr})" if server_hdr else ""
-                    body_preview = f" — Body: {body_snip!r}" if body_snip else ""
-                    print(f"  ✓ {domain} — HTTP {http_status}{server_str} [{status_label}]{body_preview}")
+                    print(f"  ✓ {domain} — HTTP {http_status} [{status_label}]")
                 else:
-                    err = report.get("error")
-                    print(f"  ✗ {domain} — {err}")
+                    print(f"  ✗ {domain} — no HTTP response")
 
                 # Submit and print API result clearly
                 ok, err = await submit_report(args.api_url, token, report)
                 if ok:
                     consecutive_failures = 0
                     state["last_domain"] = domain
-                    state["last_run"] = datetime.now().isoformat()
+                    state["last_run"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
                     save_state(state)
                     print(f"    → API: accepted (200)")
                 else:

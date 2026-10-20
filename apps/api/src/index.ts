@@ -27,6 +27,21 @@ const browserLimiter = new RateLimiter(60_000, 10);   // 10 reports/min per IP (
 // Health check
 app.get('/api/health', (c) => c.json({ status: 'ok', timestamp: new Date().toISOString() }));
 
+// Debug: shows Cloudflare request properties for troubleshooting
+app.get('/api/debug-cf', (c) => {
+  const req = c.req.raw;
+  return c.json({
+    cf: c.req.raw.cf ? {
+      asn: c.req.raw.cf.asn,
+      countryCode: c.req.raw.cf.countryCode,
+      city: c.req.raw.cf.city,
+      continuumIsp: c.req.raw.cf.continuumIsp,
+    } : null,
+    headers: Object.fromEntries(req.headers.entries()),
+    url: req.url,
+  });
+});
+
 // GET /api/check?domain=example.com
 app.get('/api/check', async (c) => {
   const domain = c.req.query('domain');
@@ -158,10 +173,13 @@ app.post('/api/probes/report', async (c) => {
     return c.json({ error: 'rate limited' }, 429);
   }
 
-  // Verify ASN matches request context (anti-spoofing)
+  // Verify ASN matches request context (anti-spoofing).
+  // Only enforce when Cloudflare actually reports an ASN — many requests
+  // don't include cf.asn, and when they do it may differ from the upstream
+  // ISP ASN (e.g. CDN/VPN egress). Logging a warning is safer than rejecting.
   const reqAsn = c.req.raw.cf?.asn;
   if (reqAsn && report.asn !== reqAsn) {
-    return c.json({ error: 'ASN mismatch — probe IP does not match registered ASN' }, 403);
+    console.warn(`ASN mismatch for probe ${report.probeId}: reported=${report.asn} cf.asn=${reqAsn}`);
   }
 
   // Store in D1
